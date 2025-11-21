@@ -1,0 +1,15 @@
+.winning-sign {
+  font-size: 40px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.winning-sign:first-letter {
+  text-transform: uppercase;
+}
+
+@media screen and (max-width: 600px) {
+  .winning-sign {
+    font-size: 2rem;
+  }
+}
