@@ -7,6 +7,7 @@ import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
 import logo from './assets/images/logo.png';
+import splashImage from './assets/images/splash-image.png';
 import './App.css';
 
 function App() {
@@ -205,8 +206,11 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <img src={logo} alt="Chess Game" className="title-logo" />
+    <div 
+      className="App" 
+      style={showStartMenu ? { '--splash-image': `url(${splashImage})` } : {}}
+    >
+      {!showStartMenu && <img src={logo} alt="Chess Game" className="title-logo" />}
       
       <StartMenu show={showStartMenu} onStartGame={handleStartGame} />
       <EndGameModal show={showEndGame} winner={winner} onNewGame={handleNewGame} />

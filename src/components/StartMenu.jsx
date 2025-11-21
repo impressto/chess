@@ -24,7 +24,7 @@ const StartMenu = ({ onStartGame, show }) => {
       <div className="overlay"></div>
       <div className="scene-content">
         <div style={{ marginBottom: '50px' }}>
-          <h2>Play Against</h2>
+          <h2>Jugar Contra</h2>
           <input
             type="radio"
             name="opponent"
@@ -33,7 +33,7 @@ const StartMenu = ({ onStartGame, show }) => {
             checked={opponent === 'human'}
             onChange={(e) => setOpponent(e.target.value)}
           />
-          <label htmlFor="humanOpponent">Human</label>
+          <label htmlFor="humanOpponent">Uno Contra Otro</label>
           &ensp;
           <input
             type="radio"
@@ -73,7 +73,7 @@ const StartMenu = ({ onStartGame, show }) => {
 
         <div className="start-game-container">
           <button className="button button-big" onClick={handleStartGame}>
-            Start Game
+            Start Game / Iniciar Juego
           </button>
         </div>
       </div>

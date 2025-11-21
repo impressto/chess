@@ -111,8 +111,14 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
         ))}
       </div>
 
-      <div id="board" style={{ backgroundImage: `url(${boardImage})`, backgroundSize: 'cover' }}>
-        {renderBoard()}
+      <div className="board-container">
+        {/* Background image layer */}
+        <div className="board-background" style={{ backgroundImage: `url(${boardImage})` }}></div>
+        
+        {/* Actual board with squares */}
+        <div id="board">
+          {renderBoard()}
+        </div>
       </div>
 
       {/* Captured pieces by white (black pieces taken) - bottom right */}

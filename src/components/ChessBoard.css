@@ -1,11 +1,30 @@
+.board-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: auto;
+}
+
+.board-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 125%;
+  height: 125%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
 #board {
   aspect-ratio: 1 / 1;
   margin: auto;
   border: 3px #333 solid;
   box-sizing: border-box;
   position: relative;
-  background-size: cover;
-  background-position: center;
+  z-index: 1;
 }
 
 #board > div {
@@ -68,14 +87,19 @@
 
 .captured-pieces {
   position: absolute;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 5px;
   padding: 10px;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 5px;
-  max-width: 170px;
   z-index: 10;
+}
+
+.captured-piece {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .captured-top-left {
