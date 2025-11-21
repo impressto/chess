@@ -1,5 +1,6 @@
 import React from 'react';
 import './ChessBoard.css';
+import boardImage from '../assets/images/board.jpeg';
 
 // Import all piece images
 import blackBishop from '../assets/images/peices/black-bishop.png';
@@ -15,7 +16,9 @@ import whiteKnight from '../assets/images/peices/white-knight.png';
 import whitePawn from '../assets/images/peices/white-pawn.png';
 import whiteQueen from '../assets/images/peices/white-queen.png';
 
-const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove }) => {
+const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces }) => {
+  console.log('ChessBoard rendering with', pieces.length, 'pieces');
+  
   // Map piece types to their images
   const pieceImages = {
     black: {
@@ -95,8 +98,34 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
   };
 
   return (
-    <div id="board">
-      {renderBoard()}
+    <div className="board-wrapper">
+      {/* Captured pieces by black (white pieces taken) - top left */}
+      <div className="captured-pieces captured-top-left">
+        {capturedPieces.black.map((piece, index) => (
+          <img
+            key={`${piece.name}-${index}`}
+            src={getPieceImage(piece.color, piece.rank)}
+            alt={`captured ${piece.color} ${piece.rank}`}
+            className="captured-piece"
+          />
+        ))}
+      </div>
+
+      <div id="board" style={{ backgroundImage: `url(${boardImage})`, backgroundSize: 'cover' }}>
+        {renderBoard()}
+      </div>
+
+      {/* Captured pieces by white (black pieces taken) - bottom right */}
+      <div className="captured-pieces captured-bottom-right">
+        {capturedPieces.white.map((piece, index) => (
+          <img
+            key={`${piece.name}-${index}`}
+            src={getPieceImage(piece.color, piece.rank)}
+            alt={`captured ${piece.color} ${piece.rank}`}
+            className="captured-piece"
+          />
+        ))}
+      </div>
     </div>
   );
 };

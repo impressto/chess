@@ -78,8 +78,10 @@ const createAI = (aiTurn) => {
   };
 
   const play = (pieces, callback) => {
+    console.log('AI play called with pieces:', pieces.length, 'aiTurn:', aiTurn);
     setTimeout(() => {
       const aiPlay = minimax(pieces, aiTurn);
+      console.log('AI minimax result:', aiPlay);
       callback(aiPlay);
     }, 100);
   };

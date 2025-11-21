@@ -6,6 +6,7 @@ import ChessBoard from './components/ChessBoard';
 import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
+import logo from './assets/images/logo.png';
 import './App.css';
 
 function App() {
@@ -20,9 +21,12 @@ function App() {
   const [lastMove, setLastMove] = useState([]);
   const [gameState, setGameState] = useState('idle');
   const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white' });
+  const [updateCounter, setUpdateCounter] = useState(0);
+  const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
   
   const gameRef = useRef(null);
   const aiPlayerRef = useRef(null);
+  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white' });
 
   useEffect(() => {
     if (!gameRef.current) {
@@ -35,39 +39,61 @@ function App() {
     const game = gameRef.current;
 
     game.on('pieceMove', (move) => {
-      setPieces([...game.pieces]);
+      console.log('pieceMove event fired:', move);
+      // Deep clone the pieces to ensure React detects the change
+      const clonedPieces = game.pieces.map(p => ({...p}));
+      console.log('Cloned pieces:', clonedPieces.length);
+      setPieces(clonedPieces);
       setLastMove([move.from, move.piece.position]);
       setAllowedMoves([]);
       setClickedSquare(null);
       setClickedPieceName(null);
+      setUpdateCounter(c => c + 1);
     });
 
     game.on('turnChange', (newTurn) => {
+      console.log('Turn changed to:', newTurn);
       setTurn(newTurn);
       setGameState(newTurn + '_turn');
       
       // Check if it's AI's turn
-      if (gameOptions.opponent === 'ai' && newTurn !== gameOptions.playerColor) {
+      const currentOptions = gameOptionsRef.current;
+      console.log('Current options:', currentOptions);
+      console.log('Is AI turn?', currentOptions.opponent === 'ai' && newTurn !== currentOptions.playerColor);
+      
+      if (currentOptions.opponent === 'ai' && newTurn !== currentOptions.playerColor) {
+        console.log('AI is thinking...');
         setGameState('ai_thinking');
         
         // AI makes a move
         if (aiPlayerRef.current) {
+          console.log('Calling AI play...');
           aiPlayerRef.current.play(game.pieces, (aiPlay) => {
+            console.log('AI play result:', aiPlay);
             if (aiPlay.move) {
               game.movePiece(aiPlay.move.pieceName, aiPlay.move.position);
             }
             setGameState(game.turn + '_turn');
           });
+        } else {
+          console.log('No AI player found!');
         }
       }
     });
 
     game.on('promotion', () => {
-      setPieces([...game.pieces]);
+      setPieces(game.pieces.map(p => ({...p})));
     });
 
-    game.on('kill', () => {
-      setPieces([...game.pieces]);
+    game.on('kill', (piece) => {
+      console.log('Piece killed:', piece);
+      setPieces(game.pieces.map(p => ({...p})));
+      // Add to captured pieces - the piece that was killed is captured by the opposite color
+      const capturer = piece.color === 'white' ? 'black' : 'white';
+      setCapturedPieces(prev => ({
+        ...prev,
+        [capturer]: [...prev[capturer], piece]
+      }));
     });
 
     game.on('checkMate', (winningColor) => {
@@ -78,7 +104,9 @@ function App() {
   };
 
   const handleStartGame = (options) => {
+    console.log('Starting game with options:', options);
     setGameOptions(options);
+    gameOptionsRef.current = options;
     setShowStartMenu(false);
     
     // Create AI if playing against AI
@@ -91,9 +119,11 @@ function App() {
     
     const game = gameRef.current;
     game.startNewGame(initialPieces, 'white');
-    setupGameEvents();
+    // Don't call setupGameEvents again - events are already set up
     
-    setPieces([...game.pieces]);
+    const clonedPieces = game.pieces.map(p => ({...p}));
+    console.log('Setting pieces:', clonedPieces.length, 'pieces');
+    setPieces(clonedPieces);
     setTurn('white');
     setAllowedMoves([]);
     setClickedSquare(null);
@@ -102,6 +132,7 @@ function App() {
     setShowEndGame(false);
     setWinner('');
     setGameState('white_turn');
+    setCapturedPieces({ white: [], black: [] });
     
     // If player chose black and AI is white, AI makes first move
     if (options.opponent === 'ai' && options.playerColor === 'black') {
@@ -120,15 +151,18 @@ function App() {
   };
 
   const handleSquareClick = (position) => {
+    console.log('Square clicked:', position);
     const game = gameRef.current;
     
     if (gameState === 'checkmate' || gameState === 'ai_thinking') return;
     
     const existingPiece = game.getPieceByPos(position);
+    console.log('Existing piece at position:', existingPiece);
 
     // If clicking on own piece, show allowed moves
     if (existingPiece && existingPiece.color === game.turn) {
       const moves = game.getPieceAllowedMoves(existingPiece.name);
+      console.log('Allowed moves for', existingPiece.name, ':', moves);
       setAllowedMoves(moves);
       setClickedSquare(position);
       setClickedPieceName(existingPiece.name);
@@ -136,8 +170,11 @@ function App() {
     }
 
     // If a piece is selected and clicking on an allowed square, move the piece
+    console.log('Clicked piece name:', clickedPieceName, 'Allowed moves:', allowedMoves);
     if (clickedPieceName && allowedMoves.includes(position)) {
+      console.log('Attempting to move', clickedPieceName, 'to', position);
       const success = game.movePiece(clickedPieceName, position);
+      console.log('Move success:', success);
       if (success) {
         // The game events will handle state updates
       }
@@ -152,12 +189,13 @@ function App() {
   const handleUndo = () => {
     const game = gameRef.current;
     game.undo();
-    setPieces([...game.pieces]);
+    setPieces(game.pieces.map(p => ({...p})));
     setTurn(game.turn);
     setAllowedMoves([]);
     setClickedSquare(null);
     setClickedPieceName(null);
     setLastMove([]);
+    setCapturedPieces({ white: [], black: [] });
   };
 
   const handleNewGame = () => {
@@ -168,7 +206,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1 className="title">Chess Game</h1>
+      <img src={logo} alt="Chess Game" className="title-logo" />
       
       <StartMenu show={showStartMenu} onStartGame={handleStartGame} />
       <EndGameModal show={showEndGame} winner={winner} onNewGame={handleNewGame} />
@@ -189,6 +227,7 @@ function App() {
               allowedMoves={allowedMoves}
               clickedSquare={clickedSquare}
               lastMove={lastMove}
+              capturedPieces={capturedPieces}
             />
           </div>
         </>

@@ -11,14 +11,19 @@ class Game {
 
     this.turn = turn;
     this.clickedPiece = null;
-    this._events = {
-      pieceMove: [],
-      kill: [],
-      check: [],
-      promotion: [],
-      checkMate: [],
-      turnChange: []
-    };
+    
+    // Only initialize events if they don't exist yet
+    if (!this._events) {
+      this._events = {
+        pieceMove: [],
+        kill: [],
+        check: [],
+        promotion: [],
+        checkMate: [],
+        turnChange: []
+      };
+    }
+    
     this.history = new History();
   }
 
