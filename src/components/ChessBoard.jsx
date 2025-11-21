@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './ChessBoard.css';
 import boardImage from '../assets/images/board.jpeg';
 
@@ -16,8 +16,29 @@ import whiteKnight from '../assets/images/peices/white-knight.png';
 import whitePawn from '../assets/images/peices/white-pawn.png';
 import whiteQueen from '../assets/images/peices/white-queen.png';
 
-const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces }) => {
+const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn }) => {
   console.log('ChessBoard rendering with', pieces.length, 'pieces');
+  
+  const [showTurnIndicator, setShowTurnIndicator] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState(turn);
+
+  // Show turn indicator when turn changes
+  useEffect(() => {
+    if (turn !== currentTurn) {
+      setCurrentTurn(turn);
+      setShowTurnIndicator(true);
+      
+      const timer = setTimeout(() => {
+        setShowTurnIndicator(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [turn, currentTurn]);
+  
+  const getTurnText = () => {
+    return turn === 'white' ? 'Le toca a las blancas' : 'Le toca a las negras';
+  };
   
   // Map piece types to their images
   const pieceImages = {
@@ -114,6 +135,13 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
       <div className="board-container">
         {/* Background image layer */}
         <div className="board-background" style={{ backgroundImage: `url(${boardImage})` }}></div>
+        
+        {/* Turn indicator overlay */}
+        {showTurnIndicator && (
+          <div className="turn-indicator-overlay">
+            <div className="turn-indicator-text">{getTurnText()}</div>
+          </div>
+        )}
         
         {/* Actual board with squares */}
         <div id="board">

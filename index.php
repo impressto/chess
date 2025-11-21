@@ -19,17 +19,18 @@ $baseUrl = 'https://impressto.ca/chess';
     <meta name="keywords" content="ajedrez, chess, games, react, pwa" />
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="<?php echo $baseUrl; ?>/manifest.json" />
-    <link rel="icon" href="<?php echo $baseUrl; ?>/assets/black-king.png" />
+    <link rel="manifest" href="<?php echo $baseUrl; ?>/dist/manifest.json" />
+    <link rel="icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
     
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Chess" />
-    <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/assets/black-king.png" />
+    <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
     
     <title>Chess Game</title>
-    <link rel="stylesheet" crossorigin href="<?php echo $baseUrl; ?>/assets/index.css?v=<?php echo $version; ?>">
+    <link rel="stylesheet" crossorigin href="<?php echo $baseUrl; ?>/dist/assets/index.css?v=<?php echo $version; ?>">
     
     <style>
         /* Prevent scrolling on mobile */
@@ -62,14 +63,14 @@ $baseUrl = 'https://impressto.ca/chess';
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <script type="module" crossorigin src="<?php echo $baseUrl; ?>/assets/index.js?v=<?php echo $version; ?>"></script>
-    <link rel="modulepreload" crossorigin href="<?php echo $baseUrl; ?>/assets/vendor.js?v=<?php echo $version; ?>">
+    <script type="module" crossorigin src="<?php echo $baseUrl; ?>/dist/assets/index.js?v=<?php echo $version; ?>"></script>
+    <link rel="modulepreload" crossorigin href="<?php echo $baseUrl; ?>/dist/assets/vendor.js?v=<?php echo $version; ?>">
     
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo $baseUrl; ?>/service-worker.js')
+                navigator.serviceWorker.register('<?php echo $baseUrl; ?>/dist/service-worker.js')
                     .then(registration => {
                         console.log('✅ Service Worker registered:', registration.scope);
                     })

@@ -232,6 +232,7 @@ function App() {
               clickedSquare={clickedSquare}
               lastMove={lastMove}
               capturedPieces={capturedPieces}
+              turn={turn}
             />
           </div>
         </>

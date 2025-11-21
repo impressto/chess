@@ -3,18 +3,28 @@ import './StartMenu.css';
 
 const StartMenu = ({ onStartGame, show }) => {
   const [opponent, setOpponent] = React.useState('human');
-  const [playerColor, setPlayerColor] = React.useState('white');
+  const [playerColor, setPlayerColor] = React.useState(null);
 
   // Reset state when menu is shown
   useEffect(() => {
     if (show) {
       setOpponent('human');
-      setPlayerColor('white');
+      setPlayerColor(null);
     }
   }, [show]);
 
-  const handleStartGame = () => {
-    onStartGame({ opponent, playerColor });
+  const handleOpponentChange = (newOpponent) => {
+    setOpponent(newOpponent);
+    if (newOpponent === 'human') {
+      // Start game immediately when selecting human vs human
+      onStartGame({ opponent: newOpponent, playerColor: 'white' });
+    }
+  };
+
+  const handleColorChange = (color) => {
+    setPlayerColor(color);
+    // Start game immediately when selecting a color (AI mode)
+    onStartGame({ opponent: 'ai', playerColor: color });
   };
 
   if (!show) return null;
@@ -31,7 +41,7 @@ const StartMenu = ({ onStartGame, show }) => {
             id="humanOpponent"
             value="human"
             checked={opponent === 'human'}
-            onChange={(e) => setOpponent(e.target.value)}
+            onChange={(e) => handleOpponentChange(e.target.value)}
           />
           <label htmlFor="humanOpponent">Uno Contra Otro</label>
           &ensp;
@@ -41,7 +51,7 @@ const StartMenu = ({ onStartGame, show }) => {
             id="aiOpponent"
             value="ai"
             checked={opponent === 'ai'}
-            onChange={(e) => setOpponent(e.target.value)}
+            onChange={(e) => handleOpponentChange(e.target.value)}
           />
           <label htmlFor="aiOpponent">AI</label>
         </div>
@@ -55,7 +65,7 @@ const StartMenu = ({ onStartGame, show }) => {
               id="playerColorWhite"
               value="white"
               checked={playerColor === 'white'}
-              onChange={(e) => setPlayerColor(e.target.value)}
+              onChange={(e) => handleColorChange(e.target.value)}
             />
             <label htmlFor="playerColorWhite">White</label>
             &ensp;
@@ -65,17 +75,11 @@ const StartMenu = ({ onStartGame, show }) => {
               id="playerColorBlack"
               value="black"
               checked={playerColor === 'black'}
-              onChange={(e) => setPlayerColor(e.target.value)}
+              onChange={(e) => handleColorChange(e.target.value)}
             />
             <label htmlFor="playerColorBlack">Black</label>
           </div>
         )}
-
-        <div className="start-game-container">
-          <button className="button button-big" onClick={handleStartGame}>
-            Start Game / Iniciar Juego
-          </button>
-        </div>
       </div>
     </div>
   );
