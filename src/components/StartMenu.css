@@ -67,19 +67,20 @@ label {
   gap: 0.8em;
   padding: 0.8em 1.5em;
   border-radius: 5px;
+  border: 2px solid #d1b593;
   color: white;
   margin: 0 10px;
 }
 
 input[type='radio']:checked + label {
-  background-color: #4caf50;
+  background-color: #c19561;;
 }
 
 .button {
   padding: 10px 20px;
   border-radius: 5px;
   outline: 0;
-  background: #4caf50;
+  background: #c19561;
   color: white;
   border: 0;
   cursor: pointer;
