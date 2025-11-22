@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import './StartMenu.css';
 
 const StartMenu = ({ onStartGame, show }) => {
-  const [opponent, setOpponent] = React.useState('human');
+  const [opponent, setOpponent] = React.useState(null);
   const [playerColor, setPlayerColor] = React.useState(null);
 
   // Reset state when menu is shown
   useEffect(() => {
     if (show) {
-      setOpponent('human');
+      setOpponent(null);
       setPlayerColor(null);
     }
   }, [show]);
@@ -33,7 +33,7 @@ const StartMenu = ({ onStartGame, show }) => {
     <div className="scene show">
       <div className="overlay"></div>
       <div className="scene-content">
-        <div style={{ marginBottom: '50px' }}>
+        <div id="opponent-selection">
           <h2>Jugar Contra</h2>
           <input
             type="radio"
@@ -58,7 +58,7 @@ const StartMenu = ({ onStartGame, show }) => {
 
         {opponent === 'ai' && (
           <div className="select-color-container" style={{ marginBottom: '50px' }}>
-            <h2>Select Your Color</h2>
+            <h2>Selecciona Tu Color</h2>
             <input
               type="radio"
               name="playerColor"
@@ -67,7 +67,7 @@ const StartMenu = ({ onStartGame, show }) => {
               checked={playerColor === 'white'}
               onChange={(e) => handleColorChange(e.target.value)}
             />
-            <label htmlFor="playerColorWhite">White</label>
+            <label htmlFor="playerColorWhite">Blanco</label>
             &ensp;
             <input
               type="radio"
@@ -77,7 +77,7 @@ const StartMenu = ({ onStartGame, show }) => {
               checked={playerColor === 'black'}
               onChange={(e) => handleColorChange(e.target.value)}
             />
-            <label htmlFor="playerColorBlack">Black</label>
+            <label htmlFor="playerColorBlack">Negro</label>
           </div>
         )}
       </div>

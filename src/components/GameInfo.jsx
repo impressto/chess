@@ -4,10 +4,6 @@ import './GameInfo.css';
 const GameInfo = ({ turn, gameState, onUndo, onNewGame }) => {
   return (
     <div className="game-info">
-      <div id="turn" className="turn-indicator">
-        {turn === 'white' ? "Le toca a las blancas" : "Le toca a las negras"}
-        {gameState === 'ai_thinking' && ' (pensando...)'}
-      </div>
       <div className="game-controls">
         <button className="button" onClick={onUndo}>
           deshacer movimiento

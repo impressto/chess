@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ChessBoard.css';
-import boardImage from '../assets/images/board.jpeg';
+import boardImage from '../assets/images/board.jpg';
 
 // Import all piece images
 import blackBishop from '../assets/images/peices/black-bishop.png';
@@ -16,25 +16,34 @@ import whiteKnight from '../assets/images/peices/white-knight.png';
 import whitePawn from '../assets/images/peices/white-pawn.png';
 import whiteQueen from '../assets/images/peices/white-queen.png';
 
-const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn }) => {
+const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn, gameOptions }) => {
   console.log('ChessBoard rendering with', pieces.length, 'pieces');
   
   const [showTurnIndicator, setShowTurnIndicator] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState(turn);
+  const [currentTurn, setCurrentTurn] = useState(null);
 
   // Show turn indicator when turn changes
   useEffect(() => {
     if (turn !== currentTurn) {
       setCurrentTurn(turn);
-      setShowTurnIndicator(true);
       
-      const timer = setTimeout(() => {
+      // Only show turn indicator when playing against AI and it's the player's turn
+      const shouldShow = gameOptions.opponent === 'ai' && turn === gameOptions.playerColor;
+      
+      if (shouldShow) {
+        setShowTurnIndicator(true);
+        
+        const timer = setTimeout(() => {
+          setShowTurnIndicator(false);
+        }, 1000);
+        
+        return () => clearTimeout(timer);
+      } else {
+        // Hide indicator for human vs human or AI's turn
         setShowTurnIndicator(false);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+      }
     }
-  }, [turn, currentTurn]);
+  }, [turn, currentTurn, gameOptions]);
   
   const getTurnText = () => {
     return turn === 'white' ? 'Le toca a las blancas' : 'Le toca a las negras';
@@ -87,7 +96,11 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
         else squareClass += ' dark';
         if (isAllowed) squareClass += ' allowed';
         if (isClicked) squareClass += ' clicked-square';
-        if (isLastMove) squareClass += ' last-move';
+        if (isLastMove) {
+          // If it's white's turn now, black just moved (use light blue)
+          // If it's black's turn now, white just moved (use yellow)
+          squareClass += turn === 'white' ? ' last-move-black' : ' last-move-white';
+        }
         
         squares.push(
           <div

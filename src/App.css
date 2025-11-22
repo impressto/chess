@@ -5,7 +5,7 @@
 }
 
 body {
-  background: linear-gradient(to bottom, #ddcaa9 0%, #b48d62 100%);
+  background: #ebdfc7;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -23,6 +23,11 @@ body {
   background-size: contain;
 }
 
+.App.playing {
+  background-image: none;
+  background: linear-gradient(to bottom, #ddcaa9 0%, #b48d62 100%);
+}
+
 .title {
   text-align: center;
   color: #333;
@@ -33,7 +38,7 @@ body {
 .title-logo {
   display: block;
   margin: 0 auto 20px;
-  max-width: 400px;
+  max-width: 300px;
   height: auto;
 }
 

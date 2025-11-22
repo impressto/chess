@@ -18,6 +18,20 @@ $baseUrl = 'https://impressto.ca/chess';
     <meta name="description" content="Juego de ajedrez clásico con IA!" />
     <meta name="keywords" content="ajedrez, chess, games, react, pwa" />
     
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Juego de ajedrez bárbaro" />
+    <meta property="og:description" content="Juego de ajedrez clásico con IA!" />
+    <meta property="og:image" content="<?php echo $baseUrl; ?>/dist/screeen.jpg" />
+    <meta property="og:url" content="<?php echo $baseUrl; ?>/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Chess Game" />
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Juego de ajedrez bárbaro" />
+    <meta name="twitter:description" content="Juego de ajedrez clásico con IA!" />
+    <meta name="twitter:image" content="<?php echo $baseUrl; ?>/dist/screeen.jpg" />
+    
     <!-- PWA Manifest -->
     <link rel="manifest" href="<?php echo $baseUrl; ?>/dist/manifest.json" />
     <link rel="icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
@@ -29,7 +43,7 @@ $baseUrl = 'https://impressto.ca/chess';
     <meta name="apple-mobile-web-app-title" content="Chess" />
     <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
     
-    <title>Chess Game</title>
+    <title>Juego de ajedrez bárbaro</title>
     <link rel="stylesheet" crossorigin href="<?php echo $baseUrl; ?>/dist/assets/index.css?v=<?php echo $version; ?>">
     
     <style>
@@ -70,9 +84,11 @@ $baseUrl = 'https://impressto.ca/chess';
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo $baseUrl; ?>/dist/service-worker.js')
+                navigator.serviceWorker.register('<?php echo $baseUrl; ?>/dist/service-worker.js?v=<?php echo $version; ?>')
                     .then(registration => {
                         console.log('✅ Service Worker registered:', registration.scope);
+                        // Check for updates
+                        registration.update();
                     })
                     .catch(error => {
                         console.log('❌ Service Worker registration failed:', error);

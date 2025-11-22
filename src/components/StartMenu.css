@@ -36,8 +36,12 @@
 
 .scene-content h2 {
   font-weight: 500;
-  margin-bottom: 15px;
+  margin-bottom: 0;
   font-size: 2rem;
+}
+
+#opponent-selection {
+  margin-bottom: 0;
 }
 
 @keyframes showMessage {
@@ -54,7 +58,7 @@ input[type='radio'] {
 }
 
 label {
-  background-color: rgb(112, 112, 112);
+  background-color: #574741;
   position: relative;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
@@ -90,4 +94,15 @@ input[type='radio']:checked + label {
 
 .button:hover {
   background: #45a049;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .scene .scene-content {
+    margin-top: 32vh;
+  }
+  
+  .scene-content > div {
+    margin-bottom: 22px !important;
+  }
 }

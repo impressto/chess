@@ -1,16 +1,17 @@
 {
-  "name": "Chess Game",
+  "name": "Juego de ajedrez Ogle",
   "short_name": "Chess",
   "description": "Juego de ajedrez clásico con IA",
   "start_url": "/chess/",
+  "scope": "/chess/",
   "display": "standalone",
-  "background_color": "#ddcaa9",
+  "background_color": "#ebdfc7",
   "theme_color": "#ddcaa9",
   "orientation": "portrait",
   "icons": [
     {
       "src": "/chess/dist/assets/black-king.png",
-      "sizes": "any",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

@@ -6,8 +6,8 @@ import ChessBoard from './components/ChessBoard';
 import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
-import logo from './assets/images/logo.png';
-import splashImage from './assets/images/splash-image.png';
+import logo from './assets/images/logo.jpg';
+import splashImage from './assets/images/splash-image.jpg';
 import './App.css';
 
 function App() {
@@ -207,10 +207,10 @@ function App() {
 
   return (
     <div 
-      className="App" 
+      className={`App ${!showStartMenu ? 'playing' : ''}`}
       style={showStartMenu ? { '--splash-image': `url(${splashImage})` } : {}}
     >
-      {!showStartMenu && <img src={logo} alt="Chess Game" className="title-logo" />}
+      {!showStartMenu && <img src={logo} alt="Juego de ajedrez Ogle" className="title-logo" />}
       
       <StartMenu show={showStartMenu} onStartGame={handleStartGame} />
       <EndGameModal show={showEndGame} winner={winner} onNewGame={handleNewGame} />
@@ -233,6 +233,7 @@ function App() {
               lastMove={lastMove}
               capturedPieces={capturedPieces}
               turn={turn}
+              gameOptions={gameOptions}
             />
           </div>
         </>
