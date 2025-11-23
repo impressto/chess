@@ -6,7 +6,7 @@ const GameInfo = ({ turn, gameState, onUndo, onNewGame }) => {
     <div className="game-info">
       <div className="game-controls">
         <button className="button" onClick={onUndo}>
-          deshacer movimiento
+          Deshacer Movimiento
         </button>
         <button className="button" onClick={onNewGame}>
           Juego Nuevo

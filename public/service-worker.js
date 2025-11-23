@@ -1,6 +1,9 @@
-const CACHE_NAME = 'chess-game-v0.0.2';
+const CACHE_NAME = 'chess-game-v0.0.3';
 const urlsToCache = [
   '/chess/',
+  '/chess/index.php',
+  '/chess/dist/index.html',
+  '/chess/dist/manifest.json',
   '/chess/dist/assets/index.js',
   '/chess/dist/assets/vendor.js',
   '/chess/dist/assets/index.css',
@@ -79,7 +82,13 @@ self.addEventListener('fetch', (event) => {
 
           return response;
         }).catch(() => {
-          // If both cache and network fail, could return a custom offline page
+          // If both cache and network fail, return cached index for navigation requests
+          if (event.request.mode === 'navigate') {
+            return caches.match('/chess/index.php').then((cachedResponse) => {
+              return cachedResponse || caches.match('/chess/');
+            });
+          }
+          // For other requests, try to return from cache
           return caches.match('/chess/');
         });
       })
