@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-game-v0.0.7';
+const CACHE_NAME = 'chess-game-v0.0.8';
 const urlsToCache = [
   '/chess/',
   '/chess/index.php',
