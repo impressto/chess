@@ -84,16 +84,36 @@ $baseUrl = 'https://impressto.ca/chess';
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo $baseUrl; ?>/dist/service-worker.js?v=<?php echo $version; ?>')
+                // Service worker at root of /chess/ to control entire scope
+                navigator.serviceWorker.register('/chess/service-worker.js', {
+                    scope: '/chess/'
+                })
                     .then(registration => {
-                        console.log('✅ Service Worker registered:', registration.scope);
-                        // Check for updates
+                        console.log('✅ Service Worker registered with scope:', registration.scope);
+                        
+                        // Check for updates every time
                         registration.update();
+                        
+                        // Listen for new service worker
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 New service worker found, installing...');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'activated') {
+                                    console.log('✅ New service worker activated!');
+                                    // Optionally reload the page to use new service worker
+                                    // window.location.reload();
+                                }
+                            });
+                        });
                     })
                     .catch(error => {
-                        console.log('❌ Service Worker registration failed:', error);
+                        console.error('❌ Service Worker registration failed:', error);
                     });
             });
+        } else {
+            console.warn('⚠️ Service Workers not supported in this browser');
         }
     </script>
   </body>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Debug - Chess PWA</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; margin-top: 30px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #0e4429; color: #3fb950; }
+        .error { background: #3d1515; color: #f85149; }
+        .warning { background: #4d3800; color: #d29922; }
+        .info { background: #1c2c4d; color: #58a6ff; }
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #2ea043; }
+        button.danger { background: #da3633; }
+        button.danger:hover { background: #b62324; }
+        pre {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #30363d;
+        }
+        .cache-item { padding: 5px; margin: 2px 0; background: #161b22; border-left: 3px solid #238636; }
+        #log {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #0d1117;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .log-entry { margin: 5px 0; font-size: 12px; }
+        .log-sw { color: #3fb950; }
+        .log-cache { color: #58a6ff; }
+        .log-error { color: #f85149; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Service Worker Debug Tool</h1>
+    <p>Use this page to debug the Chess PWA service worker</p>
+
+    <h2>📊 Service Worker Status</h2>
+    <div id="swStatus"></div>
+
+    <h2>🎮 Actions</h2>
+    <button onclick="registerSW()">Register Service Worker</button>
+    <button onclick="unregisterSW()" class="danger">Unregister Service Worker</button>
+    <button onclick="updateSW()">Check for Updates</button>
+    <button onclick="clearCaches()" class="danger">Clear All Caches</button>
+    <button onclick="testOffline()">Test Offline Mode</button>
+    <button onclick="location.href='/chess/'">Go to Chess App</button>
+
+    <h2>💾 Cached Files</h2>
+    <div id="cacheList"></div>
+
+    <h2>📝 Console Log</h2>
+    <div id="log"></div>
+
+    <script>
+        const log = (message, type = 'info') => {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+        };
+
+        // Override console to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            log(args.join(' '), 'sw');
+        };
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            log(args.join(' '), 'error');
+        };
+
+        async function checkSWStatus() {
+            const statusDiv = document.getElementById('swStatus');
+            
+            if (!('serviceWorker' in navigator)) {
+                statusDiv.innerHTML = '<div class="status error">❌ Service Workers not supported in this browser</div>';
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.getRegistration('/chess/');
+            
+            if (registration) {
+                let status = '<div class="status success">✅ Service Worker is registered</div>';
+                status += `<div class="status info">📍 Scope: ${registration.scope}</div>`;
+                
+                if (registration.active) {
+                    status += `<div class="status success">✅ Active worker: ${registration.active.scriptURL}</div>`;
+                }
+                if (registration.installing) {
+                    status += `<div class="status warning">⏳ Installing worker...</div>`;
+                }
+                if (registration.waiting) {
+                    status += `<div class="status warning">⏳ Worker waiting to activate</div>`;
+                }
+                
+                statusDiv.innerHTML = status;
+                log('Service worker status checked', 'sw');
+            } else {
+                statusDiv.innerHTML = '<div class="status warning">⚠️ No service worker registered</div>';
+                log('No service worker found', 'error');
+            }
+        }
+
+        async function registerSW() {
+            try {
+                const registration = await navigator.serviceWorker.register('/chess/service-worker.js', {
+                    scope: '/chess/'
+                });
+                log('✅ Service worker registered successfully', 'sw');
+                console.log('Registration:', registration);
+                await checkSWStatus();
+                await listCaches();
+            } catch (error) {
+                log(`❌ Registration failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        async function unregisterSW() {
+            const registration = await navigator.serviceWorker.getRegistration('/chess/');
+            if (registration) {
+                await registration.unregister();
+                log('Service worker unregistered', 'sw');
+                await checkSWStatus();
+            } else {
+                log('No service worker to unregister', 'error');
+            }
+        }
+
+        async function updateSW() {
+            const registration = await navigator.serviceWorker.getRegistration('/chess/');
+            if (registration) {
+                await registration.update();
+                log('Checked for service worker updates', 'sw');
+                await checkSWStatus();
+            } else {
+                log('No service worker registered', 'error');
+            }
+        }
+
+        async function clearCaches() {
+            const cacheNames = await caches.keys();
+            for (const name of cacheNames) {
+                await caches.delete(name);
+                log(`Deleted cache: ${name}`, 'cache');
+            }
+            await listCaches();
+        }
+
+        async function listCaches() {
+            const cacheList = document.getElementById('cacheList');
+            const cacheNames = await caches.keys();
+            
+            if (cacheNames.length === 0) {
+                cacheList.innerHTML = '<div class="status warning">No caches found</div>';
+                return;
+            }
+
+            let html = '';
+            for (const cacheName of cacheNames) {
+                const cache = await caches.open(cacheName);
+                const keys = await cache.keys();
+                
+                html += `<h3>📦 ${cacheName} (${keys.length} files)</h3>`;
+                html += '<div style="margin-left: 20px;">';
+                
+                for (const request of keys) {
+                    html += `<div class="cache-item">${request.url}</div>`;
+                }
+                
+                html += '</div>';
+            }
+            
+            cacheList.innerHTML = html;
+            log(`Listed ${cacheNames.length} cache(s)`, 'cache');
+        }
+
+        async function testOffline() {
+            log('Testing offline mode...', 'sw');
+            
+            try {
+                // Try to fetch a chess asset
+                const response = await fetch('/chess/dist/assets/index.js');
+                if (response.ok) {
+                    log('✅ Can fetch index.js (from cache or network)', 'sw');
+                } else {
+                    log(`⚠️ Fetch returned status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Fetch failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', async () => {
+            log('Debug page loaded', 'sw');
+            await checkSWStatus();
+            await listCaches();
+        });
+
+        // Listen for service worker updates
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                log('🔄 Controller changed - new service worker activated', 'sw');
+                checkSWStatus();
+            });
+        }
+    </script>
+</body>
+</html>

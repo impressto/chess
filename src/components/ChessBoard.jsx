@@ -4,13 +4,13 @@ import boardImage from '../assets/images/board.jpg';
 
 // Import all piece images
 import blackBishop from '../assets/images/peices/black-bishop.png';
-import blackCastle from '../assets/images/peices/black-castle.png';
+import blackCastle from '../assets/images/peices/black-rook.png';
 import blackKing from '../assets/images/peices/black-king.png';
 import blackKnight from '../assets/images/peices/black-knight.png';
 import blackPawn from '../assets/images/peices/black-pawn.png';
 import blackQueen from '../assets/images/peices/black-queen.png';
 import whiteBishop from '../assets/images/peices/white-bishop.png';
-import whiteCastle from '../assets/images/peices/white-castle.png';
+import whiteCastle from '../assets/images/peices/white-rook.png';
 import whiteKing from '../assets/images/peices/white-king.png';
 import whiteKnight from '../assets/images/peices/white-knight.png';
 import whitePawn from '../assets/images/peices/white-pawn.png';
