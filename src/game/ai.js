@@ -16,25 +16,37 @@ const createAI = (aiTurn) => {
   const isPieceInWiderMiddle = (piece) => widerMiddleSquares.indexOf(piece.position) !== -1;
 
   const score = (pieces) => {
-    return pieces.reduce((total, piece) => {
+    let total = pieces.reduce((sum, piece) => {
       let weight = piece.color === aiTurn ? ranks[piece.rank] : -1 * ranks[piece.rank];
       if (isPieceInMiddle(piece)) {
         weight *= 1.05;
       } else if (isPieceInWiderMiddle(piece)) {
         weight *= 1.02;
       }
-      total += weight;
-      return total;
+      sum += weight;
+      return sum;
     }, 0);
+
+    // Bonus for putting opponent in check
+    if (simulationGame.king_checked(humanTurn)) {
+      total += 50;
+    }
+    // Penalty for being in check
+    if (simulationGame.king_checked(aiTurn)) {
+      total -= 50;
+    }
+
+    return total;
   };
 
   const isBetterScore = (score1, score2, turn) => (turn === aiTurn ? score1 >= score2 : score1 <= score2);
 
-  const isScoreGoodEnough = (score, turn) => (turn === aiTurn ? score > 7 : score < -7);
+  const isScoreGoodEnough = (score, turn) => (turn === aiTurn ? score > 50 : score < -50);
 
   const minimax = (pieces, turn, depth = 0) => {
     simulationGame.startNewGame(pieces, turn);
 
+    // Check for game over
     if (!simulationGame.getPieceByName(humanTurn + 'King') || simulationGame.king_dead(humanTurn)) {
       return { score: -Infinity, depth };
     }
