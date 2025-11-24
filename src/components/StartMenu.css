@@ -64,8 +64,8 @@ label {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.8em;
-  padding: 0.8em 1.5em;
+  gap: 0.6em;
+  padding: 0.5em 1em;
   border-radius: 5px;
   border: 2px solid #d1b593;
   color: white;
@@ -79,7 +79,7 @@ input[type='radio']:checked + label {
 }
 
 .button {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 5px;
   outline: 0;
   background: #c19561;
@@ -91,7 +91,7 @@ input[type='radio']:checked + label {
 }
 
 .button-big {
-  padding: 15px 40px;
+  padding: 12px 30px;
   font-size: 18px;
 }
 
