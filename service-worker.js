@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-game-v0.0.9';
+const CACHE_NAME = 'chess-game-v0.0.10';
 const urlsToCache = [
   '/chess/',
   '/chess/index.php',
@@ -29,7 +29,7 @@ const urlsToCache = [
 
 // Install event - cache all assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v0.0.9 and caching assets...');
+  console.log('[SW] Installing service worker v0.0.10 and caching assets...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
