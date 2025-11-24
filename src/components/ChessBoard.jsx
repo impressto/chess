@@ -21,6 +21,7 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
   
   const [captureSquare, setCaptureSquare] = useState(null);
   const [animatingPiece, setAnimatingPiece] = useState(null);
+  const [justCapturedIndex, setJustCapturedIndex] = useState(null);
   const [previousCapturedCount, setPreviousCapturedCount] = useState({
     white: 0,
     black: 0
@@ -82,11 +83,23 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
           capturedBy: capturedBy
         });
         
+        // Mark the just-captured piece for fade-in animation
+        const newIndex = capturedBy === 'white' ? 
+          capturedPieces.white.length - 1 : 
+          capturedPieces.black.length - 1;
+        
+        setJustCapturedIndex({ side: capturedBy, index: newIndex });
+        
         // Clear animations after completion
         setTimeout(() => {
           setCaptureSquare(null);
           setAnimatingPiece(null);
         }, 800);
+        
+        // Clear the just-captured marker after fade-in completes
+        setTimeout(() => {
+          setJustCapturedIndex(null);
+        }, 1200);
       }
     }
   };
@@ -184,7 +197,11 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
             key={`${piece.name}-${index}`}
             src={getPieceImage(piece.color, piece.rank)}
             alt={`captured ${piece.color} ${piece.rank}`}
-            className="captured-piece"
+            className={`captured-piece ${
+              justCapturedIndex?.side === 'black' && justCapturedIndex?.index === index 
+                ? 'just-captured' 
+                : ''
+            }`}
           />
         ))}
       </div>
@@ -221,7 +238,11 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
             key={`${piece.name}-${index}`}
             src={getPieceImage(piece.color, piece.rank)}
             alt={`captured ${piece.color} ${piece.rank}`}
-            className="captured-piece"
+            className={`captured-piece ${
+              justCapturedIndex?.side === 'white' && justCapturedIndex?.index === index 
+                ? 'just-captured' 
+                : ''
+            }`}
           />
         ))}
       </div>
