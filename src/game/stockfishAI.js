@@ -1,15 +1,28 @@
 // Stockfish WebAssembly AI wrapper using stockfish.wasm
 class StockfishAI {
-  constructor(aiColor) {
+  constructor(aiColor, difficulty = 'intermediate') {
     this.aiColor = aiColor;
     this.stockfish = null;
     this.isReady = false;
     this.pendingCallback = null;
     this.bestMove = null;
-    this.skillLevel = 10; // 0-20, where 20 is strongest
+    
+    // Map difficulty levels to Stockfish skill levels (0-20)
+    const difficultyMap = {
+      'beginner': 2,      // Very weak, makes obvious mistakes
+      'casual': 6,        // Hobby player level
+      'intermediate': 10, // Club player level
+      'advanced': 15,     // Strong amateur
+      'master': 20        // Near full strength
+    };
+    
+    this.skillLevel = difficultyMap[difficulty] || 10;
+    this.difficulty = difficulty;
     this.initTimeout = null;
     this.initAttempts = 0;
     this.maxInitAttempts = 3;
+    
+    console.log(`Stockfish AI difficulty: ${difficulty} (skill level ${this.skillLevel})`);
     
     this.initStockfish();
   }

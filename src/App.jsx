@@ -21,13 +21,13 @@ function App() {
   const [clickedPieceName, setClickedPieceName] = useState(null);
   const [lastMove, setLastMove] = useState([]);
   const [gameState, setGameState] = useState('idle');
-  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish' });
+  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish', difficulty: 'intermediate' });
   const [updateCounter, setUpdateCounter] = useState(0);
   const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
   
   const gameRef = useRef(null);
   const aiPlayerRef = useRef(null);
-  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish' });
+  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish', difficulty: 'intermediate' });
 
   useEffect(() => {
     if (!gameRef.current) {
@@ -121,9 +121,9 @@ function App() {
     if (options.opponent === 'ai') {
       const aiColor = options.playerColor === 'white' ? 'black' : 'white';
       
-      // Always use Stockfish AI
-      console.log('Creating Stockfish AI...');
-      aiPlayerRef.current = new StockfishAI(aiColor);
+      // Always use Stockfish AI with selected difficulty
+      console.log('Creating Stockfish AI with difficulty:', options.difficulty);
+      aiPlayerRef.current = new StockfishAI(aiColor, options.difficulty);
     } else {
       aiPlayerRef.current = null;
     }
