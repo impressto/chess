@@ -34,14 +34,14 @@ $baseUrl = 'https://impressto.ca/chess';
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="<?php echo $baseUrl; ?>/dist/manifest.json" />
-    <link rel="icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
+    <link rel="icon" href="<?php echo $baseUrl; ?>/dist/pwa-icon.png" />
     
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Chess" />
-    <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/dist/assets/black-king.png" />
+    <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/dist/pwa-icon.png" />
     
     <title>Juego de ajedrez bárbaro</title>
     <link rel="stylesheet" crossorigin href="<?php echo $baseUrl; ?>/dist/assets/index.css?v=<?php echo $version; ?>">

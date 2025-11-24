@@ -77,6 +77,9 @@ class StockfishAI {
         const engine = await window.Stockfish();
         this.stockfish = engine;
         console.log('✓ Stockfish engine created');
+        console.log('Engine object type:', typeof engine);
+        console.log('Engine is null?', engine === null);
+        console.log('Engine is undefined?', engine === undefined);
       }
       
       console.log('Available methods:', Object.keys(this.stockfish).filter(k => typeof this.stockfish[k] === 'function'));
