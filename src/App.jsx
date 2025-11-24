@@ -6,11 +6,13 @@ import ChessBoard from './components/ChessBoard';
 import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
+import { useLanguage } from './contexts/LanguageContext.jsx';
 import logo from './assets/images/logo.jpg';
 import splashImage from './assets/images/splash-image.jpg';
 import './App.css';
 
 function App() {
+  const { language, toggleLanguage } = useLanguage();
   const [showStartMenu, setShowStartMenu] = useState(true);
   const [showEndGame, setShowEndGame] = useState(false);
   const [winner, setWinner] = useState('');
@@ -220,6 +222,30 @@ function App() {
       className={`App ${!showStartMenu ? 'playing' : ''}`}
       style={showStartMenu ? { '--splash-image': `url(${splashImage})` } : {}}
     >
+      {/* Language Toggle Button */}
+      <button 
+        onClick={toggleLanguage}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          padding: '8px 16px',
+          backgroundColor: '#8b4513',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          zIndex: 1000,
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#a0522d'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = '#8b4513'}
+      >
+        {language === 'en' ? 'ES' : 'EN'}
+      </button>
+      
       {!showStartMenu && <img src={logo} alt="Juego de ajedrez Ogle" className="title-logo" />}
       
       <StartMenu show={showStartMenu} onStartGame={handleStartGame} />

@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import './StartMenu.css';
+import { useLanguage } from '../contexts/LanguageContext.jsx';
 
 const StartMenu = ({ onStartGame, show }) => {
+  const { t } = useLanguage();
   const [opponent, setOpponent] = React.useState(null);
   const [playerColor, setPlayerColor] = React.useState(null);
   const [difficulty, setDifficulty] = React.useState('intermediate');
@@ -36,7 +38,7 @@ const StartMenu = ({ onStartGame, show }) => {
       <div className="overlay"></div>
       <div className="scene-content">
         <div id="opponent-selection">
-          <h2>Jugar Contra</h2>
+          <h2>{t('playAgainst')}</h2>
           <input
             type="radio"
             name="opponent"
@@ -45,7 +47,7 @@ const StartMenu = ({ onStartGame, show }) => {
             checked={opponent === 'human'}
             onChange={(e) => handleOpponentChange(e.target.value)}
           />
-          <label htmlFor="humanOpponent">Uno Contra Otro</label>
+          <label htmlFor="humanOpponent">{t('oneVsOne')}</label>
           &ensp;
           <input
             type="radio"
@@ -55,13 +57,13 @@ const StartMenu = ({ onStartGame, show }) => {
             checked={opponent === 'ai'}
             onChange={(e) => handleOpponentChange(e.target.value)}
           />
-          <label htmlFor="aiOpponent">AI</label>
+          <label htmlFor="aiOpponent">{t('ai')}</label>
         </div>
 
         {opponent === 'ai' && (
           <>
-            <div className="select-difficulty-container" style={{ marginBottom: '20px' }}>
-              <h2>Nivel de Dificultad</h2>
+            <div className="select-difficulty-container">
+              <h2>{t('difficultyLevel')}</h2>
               <select 
                 value={difficulty} 
                 onChange={(e) => setDifficulty(e.target.value)}
@@ -76,16 +78,16 @@ const StartMenu = ({ onStartGame, show }) => {
                   maxWidth: '300px'
                 }}
               >
-                <option value="beginner">Principiante - Para nuevos jugadores</option>
-                <option value="casual">Casual - Jugador aficionado</option>
-                <option value="intermediate">Intermedio - Jugador de club</option>
-                <option value="advanced">Avanzado - Jugador fuerte</option>
-                <option value="master">Maestro - Nivel de motor</option>
+                <option value="beginner">{t('beginner')}</option>
+                <option value="casual">{t('casual')}</option>
+                <option value="intermediate">{t('intermediate')}</option>
+                <option value="advanced">{t('advanced')}</option>
+                <option value="master">{t('master')}</option>
               </select>
             </div>
 
             <div className="select-color-container" style={{ marginBottom: '50px' }}>
-              <h2>Selecciona Tu Color</h2>
+              <h2>{t('selectColor')}</h2>
               <input
                 type="radio"
                 name="playerColor"
@@ -94,7 +96,7 @@ const StartMenu = ({ onStartGame, show }) => {
                 checked={playerColor === 'white'}
                 onChange={(e) => handleColorChange(e.target.value)}
               />
-              <label htmlFor="playerColorWhite">Blanco</label>
+              <label htmlFor="playerColorWhite">{t('white')}</label>
               &ensp;
               <input
                 type="radio"
@@ -104,7 +106,7 @@ const StartMenu = ({ onStartGame, show }) => {
                 checked={playerColor === 'black'}
                 onChange={(e) => handleColorChange(e.target.value)}
               />
-              <label htmlFor="playerColorBlack">Negro</label>
+              <label htmlFor="playerColorBlack">{t('black')}</label>
             </div>
           </>
         )}
