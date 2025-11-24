@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Game from './game/Game';
-import createAI from './game/ai';
 import StockfishAI from './game/stockfishAI';
 import { initialPieces } from './game/initialPieces';
 import ChessBoard from './components/ChessBoard';
@@ -22,13 +21,13 @@ function App() {
   const [clickedPieceName, setClickedPieceName] = useState(null);
   const [lastMove, setLastMove] = useState([]);
   const [gameState, setGameState] = useState('idle');
-  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'minimax' });
+  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish' });
   const [updateCounter, setUpdateCounter] = useState(0);
   const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
   
   const gameRef = useRef(null);
   const aiPlayerRef = useRef(null);
-  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white', aiEngine: 'minimax' });
+  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish' });
 
   useEffect(() => {
     if (!gameRef.current) {
@@ -122,14 +121,9 @@ function App() {
     if (options.opponent === 'ai') {
       const aiColor = options.playerColor === 'white' ? 'black' : 'white';
       
-      // Choose AI engine based on options
-      if (options.aiEngine === 'stockfish') {
-        console.log('Creating Stockfish AI...');
-        aiPlayerRef.current = new StockfishAI(aiColor);
-      } else {
-        console.log('Creating minimax AI...');
-        aiPlayerRef.current = createAI(aiColor);
-      }
+      // Always use Stockfish AI
+      console.log('Creating Stockfish AI...');
+      aiPlayerRef.current = new StockfishAI(aiColor);
     } else {
       aiPlayerRef.current = null;
     }

@@ -4,14 +4,12 @@ import './StartMenu.css';
 const StartMenu = ({ onStartGame, show }) => {
   const [opponent, setOpponent] = React.useState(null);
   const [playerColor, setPlayerColor] = React.useState(null);
-  const [aiEngine, setAiEngine] = React.useState('minimax');
 
   // Reset state when menu is shown
   useEffect(() => {
     if (show) {
       setOpponent(null);
       setPlayerColor(null);
-      setAiEngine('minimax');
     }
   }, [show]);
 
@@ -25,8 +23,8 @@ const StartMenu = ({ onStartGame, show }) => {
 
   const handleColorChange = (color) => {
     setPlayerColor(color);
-    // Start game immediately when selecting a color (AI mode)
-    onStartGame({ opponent: 'ai', playerColor: color, aiEngine: aiEngine });
+    // Start game immediately when selecting a color (AI mode) - always use Stockfish
+    onStartGame({ opponent: 'ai', playerColor: color, aiEngine: 'stockfish' });
   };
 
   if (!show) return null;
@@ -60,29 +58,6 @@ const StartMenu = ({ onStartGame, show }) => {
 
         {opponent === 'ai' && (
           <>
-            <div className="select-ai-container" style={{ marginBottom: '20px' }}>
-              <h2>Nivel de AI</h2>
-              <input
-                type="radio"
-                name="aiEngine"
-                id="aiEngineMinimax"
-                value="minimax"
-                checked={aiEngine === 'minimax'}
-                onChange={(e) => setAiEngine(e.target.value)}
-              />
-              <label htmlFor="aiEngineMinimax">Fácil (JavaScript)</label>
-              &ensp;
-              <input
-                type="radio"
-                name="aiEngine"
-                id="aiEngineStockfish"
-                value="stockfish"
-                checked={aiEngine === 'stockfish'}
-                onChange={(e) => setAiEngine(e.target.value)}
-              />
-              <label htmlFor="aiEngineStockfish">Difícil (Stockfish)</label>
-            </div>
-
             <div className="select-color-container" style={{ marginBottom: '50px' }}>
               <h2>Selecciona Tu Color</h2>
               <input
