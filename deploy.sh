@@ -13,12 +13,66 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Get version
-VERSION=$(grep -oP '"version":\s*"\K[^"]+' package.json)
-echo "📦 Current version: $VERSION"
+# Get current version
+CURRENT_VERSION=$(grep -oP '"version":\s*"\K[^"]+' package.json)
+echo "📦 Current version: $CURRENT_VERSION"
 echo ""
 
-# Build
+# Ask for version bump
+echo "Version bump type:"
+echo "  1) Patch (0.0.X) - Bug fixes"
+echo "  2) Minor (0.X.0) - New features"
+echo "  3) Major (X.0.0) - Breaking changes"
+echo "  4) Skip version bump"
+read -p "Choose (1-4): " BUMP_CHOICE
+
+if [ "$BUMP_CHOICE" != "4" ]; then
+    # Parse current version
+    IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+    
+    # Bump version based on choice
+    case $BUMP_CHOICE in
+        1)
+            PATCH=$((PATCH + 1))
+            ;;
+        2)
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            ;;
+        3)
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            ;;
+        *)
+            echo "❌ Invalid choice"
+            exit 1
+            ;;
+    esac
+    
+    NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+    echo ""
+    echo "🔄 Bumping version: $CURRENT_VERSION → $NEW_VERSION"
+    
+    # Update package.json
+    sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
+    
+    # Update service-worker.js (root)
+    sed -i "s/chess-game-v$CURRENT_VERSION/chess-game-v$NEW_VERSION/g" service-worker.js
+    sed -i "s/service worker v$CURRENT_VERSION/service worker v$NEW_VERSION/g" service-worker.js
+    
+    # Update public/service-worker.js
+    sed -i "s/chess-game-v$CURRENT_VERSION/chess-game-v$NEW_VERSION/g" public/service-worker.js
+    sed -i "s/service worker v$CURRENT_VERSION/service worker v$NEW_VERSION/g" public/service-worker.js
+    
+    echo "✅ Version updated to $NEW_VERSION"
+    VERSION=$NEW_VERSION
+else
+    echo "⏭️  Skipping version bump"
+    VERSION=$CURRENT_VERSION
+fi
+
+echo ""
 echo "🔨 Building..."
 yarn build
 
