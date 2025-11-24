@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Game from './game/Game';
 import createAI from './game/ai';
+import StockfishAI from './game/stockfishAI';
 import { initialPieces } from './game/initialPieces';
 import ChessBoard from './components/ChessBoard';
 import StartMenu from './components/StartMenu';
@@ -21,19 +22,26 @@ function App() {
   const [clickedPieceName, setClickedPieceName] = useState(null);
   const [lastMove, setLastMove] = useState([]);
   const [gameState, setGameState] = useState('idle');
-  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white' });
+  const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'minimax' });
   const [updateCounter, setUpdateCounter] = useState(0);
   const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
   
   const gameRef = useRef(null);
   const aiPlayerRef = useRef(null);
-  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white' });
+  const gameOptionsRef = useRef({ opponent: 'human', playerColor: 'white', aiEngine: 'minimax' });
 
   useEffect(() => {
     if (!gameRef.current) {
       gameRef.current = new Game(initialPieces, 'white');
       setupGameEvents();
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (aiPlayerRef.current && aiPlayerRef.current.destroy) {
+        aiPlayerRef.current.destroy();
+      }
+    };
   }, []);
 
   const setupGameEvents = () => {
@@ -113,7 +121,15 @@ function App() {
     // Create AI if playing against AI
     if (options.opponent === 'ai') {
       const aiColor = options.playerColor === 'white' ? 'black' : 'white';
-      aiPlayerRef.current = createAI(aiColor);
+      
+      // Choose AI engine based on options
+      if (options.aiEngine === 'stockfish') {
+        console.log('Creating Stockfish AI...');
+        aiPlayerRef.current = new StockfishAI(aiColor);
+      } else {
+        console.log('Creating minimax AI...');
+        aiPlayerRef.current = createAI(aiColor);
+      }
     } else {
       aiPlayerRef.current = null;
     }

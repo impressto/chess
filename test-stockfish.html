@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stockfish WASM Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        button {
+            background: #00ff00;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: monospace;
+        }
+        button:hover {
+            background: #00cc00;
+        }
+        #output {
+            background: #000;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #00ff00;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .info { color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>Stockfish WASM Test</h1>
+    <p>Testing stockfish.wasm integration</p>
+    
+    <button onclick="testBasicImport()">1. Test Import</button>
+    <button onclick="testEngineCreation()">2. Create Engine</button>
+    <button onclick="testUCI()">3. Test UCI</button>
+    <button onclick="testMove()">4. Calculate Move</button>
+    <button onclick="clearOutput()">Clear</button>
+    
+    <div id="output"></div>
+
+    <script type="module">
+        let stockfish = null;
+        let messageLog = [];
+
+        window.log = function(message, type = 'info') {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        window.clearOutput = function() {
+            document.getElementById('output').innerHTML = '';
+            messageLog = [];
+        }
+
+        window.testBasicImport = async function() {
+            try {
+                log('Testing basic import...', 'info');
+                const Stockfish = await import('stockfish.wasm');
+                log('✓ Import successful', 'success');
+                log('Module keys: ' + Object.keys(Stockfish).join(', '), 'info');
+                log('Default export type: ' + typeof Stockfish.default, 'info');
+                
+                if (Stockfish.default) {
+                    log('✓ Default export found', 'success');
+                } else {
+                    log('✗ No default export', 'error');
+                }
+            } catch (error) {
+                log('✗ Import failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        window.testEngineCreation = async function() {
+            try {
+                log('Creating Stockfish engine...', 'info');
+                const Stockfish = await import('stockfish.wasm');
+                const factory = Stockfish.default || Stockfish;
+                
+                log('Factory type: ' + typeof factory, 'info');
+                
+                const result = factory();
+                log('Factory result type: ' + typeof result, 'info');
+                
+                if (result && typeof result.then === 'function') {
+                    log('Factory returned promise, awaiting...', 'info');
+                    stockfish = await result;
+                } else {
+                    stockfish = result;
+                }
+                
+                log('✓ Engine created', 'success');
+                log('Engine methods: ' + Object.keys(stockfish).filter(k => typeof stockfish[k] === 'function').join(', '), 'info');
+                
+                // Set up message listener
+                if (typeof stockfish.addMessageListener === 'function') {
+                    log('Using addMessageListener', 'info');
+                    stockfish.addMessageListener((msg) => {
+                        messageLog.push(msg);
+                        log('← ' + msg, 'success');
+                    });
+                } else {
+                    log('Using onmessage', 'info');
+                    stockfish.onmessage = (e) => {
+                        const msg = typeof e === 'string' ? e : e.data;
+                        messageLog.push(msg);
+                        log('← ' + msg, 'success');
+                    };
+                }
+                
+            } catch (error) {
+                log('✗ Engine creation failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        window.testUCI = function() {
+            if (!stockfish) {
+                log('✗ Engine not created yet', 'error');
+                return;
+            }
+            
+            try {
+                log('Sending UCI command...', 'info');
+                stockfish.postMessage('uci');
+                log('→ uci', 'info');
+                
+                setTimeout(() => {
+                    log('Sending isready...', 'info');
+                    stockfish.postMessage('isready');
+                    log('→ isready', 'info');
+                }, 1000);
+                
+            } catch (error) {
+                log('✗ UCI test failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        window.testMove = function() {
+            if (!stockfish) {
+                log('✗ Engine not created yet', 'error');
+                return;
+            }
+            
+            try {
+                log('Setting starting position...', 'info');
+                stockfish.postMessage('position startpos');
+                log('→ position startpos', 'info');
+                
+                setTimeout(() => {
+                    log('Calculating best move (depth 10)...', 'info');
+                    stockfish.postMessage('go depth 10');
+                    log('→ go depth 10', 'info');
+                }, 500);
+                
+            } catch (error) {
+                log('✗ Move calculation failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Auto-run basic import on load
+        log('Ready to test Stockfish WASM', 'success');
+        log('Click buttons above to run tests sequentially', 'info');
+    </script>
+</body>
+</html>

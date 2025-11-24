@@ -35,8 +35,25 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    exclude: ['stockfish.wasm'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
+  assetsInclude: ['**/*.wasm'],
   server: {
     port: 5173,
     strictPort: false,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
+    fs: {
+      strict: false,
+    },
+  },
+  worker: {
+    format: 'es',
   },
 })
