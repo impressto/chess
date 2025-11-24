@@ -68,7 +68,7 @@ yarn preview
 - white-pawn, white-rook, white-knight, white-bishop, white-queen, white-king
 
 **Images:**
-- board.jpg, logo.jpg, splash-image.jpg
+- board.jpg, logo.png, splash-image.jpg
 - screeen.jpg, board.jpeg
 
 ## Troubleshooting One-Liners

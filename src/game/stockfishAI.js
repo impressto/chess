@@ -7,22 +7,26 @@ class StockfishAI {
     this.pendingCallback = null;
     this.bestMove = null;
     
+    console.log(`🎯 Creating new StockfishAI instance with difficulty: "${difficulty}"`);
+    
     // Map difficulty levels to Stockfish skill levels (0-20)
     const difficultyMap = {
-      'beginner': 2,      // Very weak, makes obvious mistakes
-      'casual': 6,        // Hobby player level
-      'intermediate': 10, // Club player level
-      'advanced': 15,     // Strong amateur
+      'beginner': 1,      // Easiest - makes many mistakes
+      'casual': 2,        // Hobby player level
+      'intermediate': 8, // Club player level
+      'advanced': 12,     // Strong amateur
       'master': 20        // Near full strength
     };
     
-    this.skillLevel = difficultyMap[difficulty] || 10;
+    // Use !== undefined to allow skill level 0
+    this.skillLevel = difficultyMap[difficulty] !== undefined ? difficultyMap[difficulty] : 10;
     this.difficulty = difficulty;
     this.initTimeout = null;
     this.initAttempts = 0;
     this.maxInitAttempts = 3;
     
-    console.log(`Stockfish AI difficulty: ${difficulty} (skill level ${this.skillLevel})`);
+    console.log(`🎯 Stockfish AI difficulty: ${difficulty} (skill level ${this.skillLevel})`);
+    console.log(`🎯 Difficulty map lookup: difficultyMap["${difficulty}"] = ${difficultyMap[difficulty]}`);
     
     this.initStockfish();
   }
@@ -137,8 +141,22 @@ class StockfishAI {
 
     if (message === 'uciok') {
       console.log('✓ UCI initialization successful');
-      // Set skill level before marking ready
+      // Set skill level and related options before marking ready
       this.stockfish.postMessage(`setoption name Skill Level value ${this.skillLevel}`);
+      
+      // For lower skill levels, also limit the depth and enable MultiPV for more randomness
+      if (this.skillLevel <= 5) {
+        // Beginner and Casual levels - very limited
+        this.stockfish.postMessage(`setoption name UCI_LimitStrength value true`);
+        this.stockfish.postMessage(`setoption name UCI_Elo value ${800 + this.skillLevel * 100}`);
+        console.log(`Setting UCI_Elo to ${800 + this.skillLevel * 100} for weaker play`);
+      } else if (this.skillLevel <= 10) {
+        // Intermediate level
+        this.stockfish.postMessage(`setoption name UCI_LimitStrength value true`);
+        this.stockfish.postMessage(`setoption name UCI_Elo value ${1300 + this.skillLevel * 50}`);
+        console.log(`Setting UCI_Elo to ${1300 + this.skillLevel * 50}`);
+      }
+      
       this.stockfish.postMessage('isready');
     } else if (message === 'readyok') {
       this.isReady = true;
@@ -314,9 +332,25 @@ class StockfishAI {
     console.log('Position FEN:', fen);
     this.stockfish.postMessage(`position fen ${fen}`);
     
-    // Search with time limit (1 second) or depth
-    this.stockfish.postMessage('go depth 10');
-    // Alternative: this.stockfish.postMessage('go movetime 1000'); // 1 second
+    // Search with depth based on skill level
+    // Lower skill = lower depth = weaker play
+    let searchDepth;
+    if (this.skillLevel === 0) {
+      searchDepth = 1; // Skill level 0 - only looks 1 move ahead
+    } else if (this.skillLevel === 1) {
+      searchDepth = 2; // Beginner - looks 2 moves ahead
+    } else if (this.skillLevel <= 5) {
+      searchDepth = 3; // Very weak - looks 3 moves ahead
+    } else if (this.skillLevel <= 10) {
+      searchDepth = 6; // Intermediate - looks 6 moves ahead
+    } else if (this.skillLevel <= 15) {
+      searchDepth = 10; // Advanced - looks 10 moves ahead
+    } else {
+      searchDepth = 15; // Master - deep search
+    }
+    
+    console.log(`Searching with depth ${searchDepth} for skill level ${this.skillLevel}`);
+    this.stockfish.postMessage(`go depth ${searchDepth}`);
   }
 
   // Set difficulty level (0-20)

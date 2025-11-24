@@ -7,7 +7,7 @@ import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
 import { useLanguage } from './contexts/LanguageContext.jsx';
-import logo from './assets/images/logo.jpg';
+import logo from './assets/images/logo.png';
 import splashImage from './assets/images/splash-image.jpg';
 import './App.css';
 
@@ -114,17 +114,28 @@ function App() {
   };
 
   const handleStartGame = (options) => {
-    console.log('Starting game with options:', options);
+    console.log('🎮 handleStartGame called');
+    console.log('🎮 Full options object:', JSON.stringify(options, null, 2));
+    console.log('🎮 options.difficulty =', options.difficulty);
+    console.log('🎮 typeof options.difficulty =', typeof options.difficulty);
+    
     setGameOptions(options);
     gameOptionsRef.current = options;
     setShowStartMenu(false);
+    
+    // Destroy old AI if it exists
+    if (aiPlayerRef.current && aiPlayerRef.current.destroy) {
+      console.log('Destroying old AI instance...');
+      aiPlayerRef.current.destroy();
+      aiPlayerRef.current = null;
+    }
     
     // Create AI if playing against AI
     if (options.opponent === 'ai') {
       const aiColor = options.playerColor === 'white' ? 'black' : 'white';
       
       // Always use Stockfish AI with selected difficulty
-      console.log('Creating Stockfish AI with difficulty:', options.difficulty);
+      console.log('🎮 Creating Stockfish AI with aiColor:', aiColor, 'difficulty:', options.difficulty);
       aiPlayerRef.current = new StockfishAI(aiColor, options.difficulty);
     } else {
       aiPlayerRef.current = null;

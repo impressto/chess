@@ -11,7 +11,7 @@ const urlsToCache = [
   '/chess/dist/images/board.jpeg',
   '/chess/dist/images/black-king.png',
   '/chess/dist/assets/board.jpg',
-  '/chess/dist/assets/logo.jpg',
+  '/chess/dist/assets/logo.png',
   '/chess/dist/assets/splash-image.jpg',
   '/chess/dist/assets/black-bishop.png',
   '/chess/dist/assets/black-rook.png',

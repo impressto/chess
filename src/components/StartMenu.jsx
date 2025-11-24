@@ -27,6 +27,9 @@ const StartMenu = ({ onStartGame, show }) => {
 
   const handleColorChange = (color) => {
     setPlayerColor(color);
+    console.log('🎨 handleColorChange called with color:', color);
+    console.log('🎨 Current difficulty state:', difficulty);
+    console.log('🎨 Calling onStartGame with:', { opponent: 'ai', playerColor: color, aiEngine: 'stockfish', difficulty });
     // Start game immediately when selecting a color (AI mode) - always use Stockfish
     onStartGame({ opponent: 'ai', playerColor: color, aiEngine: 'stockfish', difficulty });
   };

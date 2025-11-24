@@ -74,7 +74,7 @@ REQUIRED_ASSETS=(
     "dist/assets/black-pawn.png"
     "dist/assets/white-pawn.png"
     "dist/assets/board.jpg"
-    "dist/assets/logo.jpg"
+    "dist/assets/logo.png"
 )
 
 MISSING=0

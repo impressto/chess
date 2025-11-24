@@ -246,6 +246,13 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
           />
         ))}
       </div>
+
+      {/* Difficulty display */}
+      {gameOptions.opponent === 'ai' && gameOptions.difficulty && (
+        <div className="difficulty-display">
+          Difficulty: {gameOptions.difficulty.charAt(0).toUpperCase() + gameOptions.difficulty.slice(1)}
+        </div>
+      )}
     </div>
   );
 };
