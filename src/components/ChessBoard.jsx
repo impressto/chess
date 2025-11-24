@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './ChessBoard.css';
 import boardImage from '../assets/images/board.jpg';
 
@@ -18,36 +18,6 @@ import whiteQueen from '../assets/images/peices/white-queen.png';
 
 const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn, gameOptions }) => {
   console.log('ChessBoard rendering with', pieces.length, 'pieces');
-  
-  const [showTurnIndicator, setShowTurnIndicator] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState(null);
-
-  // Show turn indicator when turn changes
-  useEffect(() => {
-    if (turn !== currentTurn) {
-      setCurrentTurn(turn);
-      
-      // Only show turn indicator when playing against AI and it's the player's turn
-      const shouldShow = gameOptions.opponent === 'ai' && turn === gameOptions.playerColor;
-      
-      if (shouldShow) {
-        setShowTurnIndicator(true);
-        
-        const timer = setTimeout(() => {
-          setShowTurnIndicator(false);
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-      } else {
-        // Hide indicator for human vs human or AI's turn
-        setShowTurnIndicator(false);
-      }
-    }
-  }, [turn, currentTurn, gameOptions]);
-  
-  const getTurnText = () => {
-    return turn === 'white' ? 'Le toca a las blancas' : 'Le toca a las negras';
-  };
   
   // Map piece types to their images
   const pieceImages = {
@@ -148,13 +118,6 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
       <div className="board-container">
         {/* Background image layer */}
         <div className="board-background" style={{ backgroundImage: `url(${boardImage})` }}></div>
-        
-        {/* Turn indicator overlay */}
-        {showTurnIndicator && (
-          <div className="turn-indicator-overlay">
-            <div className="turn-indicator-text">{getTurnText()}</div>
-          </div>
-        )}
         
         {/* Actual board with squares */}
         <div id="board">
