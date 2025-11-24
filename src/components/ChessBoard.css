@@ -86,6 +86,60 @@
   border: 1px solid black !important;
 }
 
+/* Capture animation - red blink */
+.square.capture-blink {
+  position: relative;
+}
+
+.square.capture-blink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  animation: captureBlink 0.6s ease-in-out;
+  z-index: 10;
+}
+
+@keyframes captureBlink {
+  0%, 100% {
+    background: rgba(255, 0, 0, 0);
+  }
+  25%, 75% {
+    background: rgba(255, 0, 0, 0.6);
+  }
+  50% {
+    background: rgba(255, 0, 0, 0.8);
+  }
+}
+
+/* Animating captured piece */
+.animating-capture {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  animation: moveToCaptureArea 0.8s ease-in-out forwards;
+}
+
+@keyframes moveToCaptureArea {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0.5;
+    left: var(--end-x);
+    top: var(--end-y);
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+
 .board-wrapper {
   position: relative;
   width: 100%;
