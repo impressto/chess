@@ -269,6 +269,7 @@ function App() {
             gameState={gameState}
             onUndo={handleUndo}
             onNewGame={handleNewGame}
+            gameOptions={gameOptions}
           />
           
           <div className="board-container">

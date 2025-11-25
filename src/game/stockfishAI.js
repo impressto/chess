@@ -332,25 +332,29 @@ class StockfishAI {
     console.log('Position FEN:', fen);
     this.stockfish.postMessage(`position fen ${fen}`);
     
-    // Search with depth based on skill level
-    // Lower skill = lower depth = weaker play
-    let searchDepth;
-    if (this.skillLevel === 0) {
-      searchDepth = 1; // Skill level 0 - only looks 1 move ahead
-    } else if (this.skillLevel === 1) {
-      searchDepth = 2; // Beginner - looks 2 moves ahead
-    } else if (this.skillLevel <= 5) {
-      searchDepth = 3; // Very weak - looks 3 moves ahead
-    } else if (this.skillLevel <= 10) {
-      searchDepth = 6; // Intermediate - looks 6 moves ahead
-    } else if (this.skillLevel <= 15) {
-      searchDepth = 10; // Advanced - looks 10 moves ahead
+    // Search strategy based on skill level
+    // For lower levels, use movetime (quick thinking) instead of depth for weaker play
+    if (this.skillLevel <= 2) {
+      // Beginner and casual - very limited thinking time
+      const moveTime = this.skillLevel === 1 ? 200 : 500; // 200ms for beginner, 500ms for casual
+      console.log(`Searching with movetime ${moveTime}ms for skill level ${this.skillLevel}`);
+      this.stockfish.postMessage(`go movetime ${moveTime}`);
     } else {
-      searchDepth = 15; // Master - deep search
+      // Higher levels use depth-based search
+      let searchDepth;
+      if (this.skillLevel <= 5) {
+        searchDepth = 3; // Very weak - looks 3 moves ahead
+      } else if (this.skillLevel <= 10) {
+        searchDepth = 6; // Intermediate - looks 6 moves ahead
+      } else if (this.skillLevel <= 15) {
+        searchDepth = 10; // Advanced - looks 10 moves ahead
+      } else {
+        searchDepth = 15; // Master - deep search
+      }
+      
+      console.log(`Searching with depth ${searchDepth} for skill level ${this.skillLevel}`);
+      this.stockfish.postMessage(`go depth ${searchDepth}`);
     }
-    
-    console.log(`Searching with depth ${searchDepth} for skill level ${this.skillLevel}`);
-    this.stockfish.postMessage(`go depth ${searchDepth}`);
   }
 
   // Set difficulty level (0-20)

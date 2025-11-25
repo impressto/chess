@@ -6,7 +6,7 @@ export const translations = {
   en: {
     // Start Menu
     playAgainst: 'Play Against',
-    oneVsOne: 'One vs One',
+    oneVsOne: 'Human',
     ai: 'AI',
     difficultyLevel: 'Difficulty Level',
     beginner: 'Beginner - For new players',
@@ -32,7 +32,7 @@ export const translations = {
   es: {
     // Start Menu
     playAgainst: 'Jugar Contra',
-    oneVsOne: 'Uno Contra Otro',
+    oneVsOne: 'Humano',
     ai: 'AI',
     difficultyLevel: 'Nivel de Dificultad',
     beginner: 'Principiante - Para nuevos jugadores',
@@ -59,8 +59,8 @@ export const translations = {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    // Get saved language from localStorage or default to Spanish
-    return localStorage.getItem('chess-language') || 'es';
+    // Get saved language from localStorage or default to English
+    return localStorage.getItem('chess-language') || 'en';
   });
 
   useEffect(() => {
