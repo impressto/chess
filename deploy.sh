@@ -57,13 +57,13 @@ if [ "$BUMP_CHOICE" != "4" ]; then
     # Update package.json
     sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
     
-    # Update service-worker.js (root)
-    sed -i "s/chess-game-v$CURRENT_VERSION/chess-game-v$NEW_VERSION/g" service-worker.js
-    sed -i "s/service worker v$CURRENT_VERSION/service worker v$NEW_VERSION/g" service-worker.js
+    # Update service-worker.js (root) - use regex to match any version
+    sed -i "s/chess-game-v[0-9]\+\.[0-9]\+\.[0-9]\+/chess-game-v$NEW_VERSION/g" service-worker.js
+    sed -i "s/service worker v[0-9]\+\.[0-9]\+\.[0-9]\+/service worker v$NEW_VERSION/g" service-worker.js
     
-    # Update public/service-worker.js
-    sed -i "s/chess-game-v$CURRENT_VERSION/chess-game-v$NEW_VERSION/g" public/service-worker.js
-    sed -i "s/service worker v$CURRENT_VERSION/service worker v$NEW_VERSION/g" public/service-worker.js
+    # Update public/service-worker.js - use regex to match any version
+    sed -i "s/chess-game-v[0-9]\+\.[0-9]\+\.[0-9]\+/chess-game-v$NEW_VERSION/g" public/service-worker.js
+    sed -i "s/service worker v[0-9]\+\.[0-9]\+\.[0-9]\+/service worker v$NEW_VERSION/g" public/service-worker.js
     
     echo "✅ Version updated to $NEW_VERSION"
     VERSION=$NEW_VERSION
