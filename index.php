@@ -43,6 +43,9 @@ $baseUrl = 'https://impressto.ca/chess';
     <meta name="apple-mobile-web-app-title" content="Chess" />
     <link rel="apple-touch-icon" href="<?php echo $baseUrl; ?>/dist/pwa-icon.png" />
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    
     <title>Juego de ajedrez bárbaro</title>
     <link rel="stylesheet" crossorigin href="<?php echo $baseUrl; ?>/dist/assets/index.css?v=<?php echo $version; ?>">
     
@@ -71,9 +74,36 @@ $baseUrl = 'https://impressto.ca/chess';
                 min-height: -webkit-fill-available;
             }
         }
+        
+        /* Back to Arcade link */
+        .back-to-arcade {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff00;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .back-to-arcade:hover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: scale(1.05);
+        }
     </style>
   </head>
   <body>
+    <a href="https://impressto.ca/games.php" class="back-to-arcade">
+        <span class="material-icons" style="font-size: 14px;">arrow_back</span>
+        Arcade
+    </a>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
