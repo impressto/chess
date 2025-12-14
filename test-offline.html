@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess PWA - Offline Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success { background: #4CAF50; color: white; }
+        .status.error { background: #f44336; color: white; }
+        .status.pending { background: #ff9800; color: white; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976D2; }
+        .cache-list {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Chess PWA - Offline Test</h1>
+    
+    <div class="test-card">
+        <h2>1. Service Worker Status</h2>
+        <p>Service Worker Support: <span id="sw-support" class="status pending">Checking...</span></p>
+        <p>Service Worker Registered: <span id="sw-registered" class="status pending">Checking...</span></p>
+        <p>Service Worker Active: <span id="sw-active" class="status pending">Checking...</span></p>
+        <p>Service Worker Scope: <span id="sw-scope"></span></p>
+        <div style="margin-top: 10px;">
+            <button onclick="checkServiceWorker()">🔄 Refresh Status</button>
+            <button onclick="unregisterServiceWorker()">❌ Unregister SW</button>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>2. Cache Storage</h2>
+        <p>Total Caches: <span id="cache-count">0</span></p>
+        <button onclick="listCaches()">📦 List All Caches</button>
+        <button onclick="clearAllCaches()">🗑️ Clear All Caches</button>
+        <div id="cache-list" class="cache-list" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="test-card">
+        <h2>3. Offline Test</h2>
+        <p>Network Status: <span id="network-status" class="status success">Online</span></p>
+        <ol>
+            <li>Click "List All Caches" above to verify files are cached</li>
+            <li>Open DevTools → Network tab → Select "Offline"</li>
+            <li>Click the button below to test offline navigation</li>
+        </ol>
+        <button onclick="testOfflineNavigation()">🚀 Test Offline Navigation</button>
+        <button onclick="window.location.reload()">🔄 Reload Page</button>
+    </div>
+
+    <div class="test-card">
+        <h2>4. Debug Console</h2>
+        <pre id="debug-console">Ready for testing...</pre>
+        <button onclick="clearConsole()">🧹 Clear Console</button>
+    </div>
+
+    <script>
+        const log = (message) => {
+            const console = document.getElementById('debug-console');
+            const timestamp = new Date().toLocaleTimeString();
+            console.textContent += `\n[${timestamp}] ${message}`;
+            console.scrollTop = console.scrollHeight;
+        };
+
+        const setStatus = (elementId, status, text) => {
+            const el = document.getElementById(elementId);
+            el.className = `status ${status}`;
+            el.textContent = text || status;
+        };
+
+        // Check if online/offline
+        const updateNetworkStatus = () => {
+            const status = navigator.onLine ? 'online' : 'offline';
+            setStatus('network-status', navigator.onLine ? 'success' : 'error', 
+                      navigator.onLine ? 'Online' : 'Offline');
+            log(`Network status: ${status}`);
+        };
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // Check Service Worker
+        async function checkServiceWorker() {
+            log('Checking service worker status...');
+            
+            if ('serviceWorker' in navigator) {
+                setStatus('sw-support', 'success', 'Supported');
+                log('✓ Service Worker API supported');
+
+                const registration = await navigator.serviceWorker.getRegistration('/chess/');
+                
+                if (registration) {
+                    setStatus('sw-registered', 'success', 'Registered');
+                    log(`✓ Service Worker registered`);
+                    
+                    if (registration.active) {
+                        setStatus('sw-active', 'success', 'Active');
+                        document.getElementById('sw-scope').textContent = registration.scope;
+                        log(`✓ Service Worker active with scope: ${registration.scope}`);
+                    } else {
+                        setStatus('sw-active', 'pending', 'Installing...');
+                        log('⏳ Service Worker installing...');
+                    }
+                } else {
+                    setStatus('sw-registered', 'error', 'Not Registered');
+                    log('✗ Service Worker not registered');
+                }
+            } else {
+                setStatus('sw-support', 'error', 'Not Supported');
+                log('✗ Service Worker API not supported');
+            }
+        }
+
+        // Unregister Service Worker
+        async function unregisterServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.getRegistration('/chess/');
+                if (registration) {
+                    await registration.unregister();
+                    log('✓ Service Worker unregistered');
+                    checkServiceWorker();
+                } else {
+                    log('No service worker to unregister');
+                }
+            }
+        }
+
+        // List all caches
+        async function listCaches() {
+            log('Listing all caches...');
+            const cacheNames = await caches.keys();
+            document.getElementById('cache-count').textContent = cacheNames.length;
+            
+            const cacheList = document.getElementById('cache-list');
+            cacheList.innerHTML = '<h3>Caches:</h3>';
+            
+            for (const cacheName of cacheNames) {
+                const cache = await caches.open(cacheName);
+                const keys = await cache.keys();
+                
+                cacheList.innerHTML += `<h4>${cacheName} (${keys.length} items)</h4><ul>`;
+                keys.forEach(request => {
+                    cacheList.innerHTML += `<li>${request.url}</li>`;
+                });
+                cacheList.innerHTML += '</ul>';
+                
+                log(`Cache "${cacheName}": ${keys.length} items`);
+            }
+        }
+
+        // Clear all caches
+        async function clearAllCaches() {
+            if (confirm('Are you sure you want to clear all caches?')) {
+                log('Clearing all caches...');
+                const cacheNames = await caches.keys();
+                
+                for (const cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    log(`✓ Deleted cache: ${cacheName}`);
+                }
+                
+                document.getElementById('cache-count').textContent = '0';
+                document.getElementById('cache-list').innerHTML = '';
+                log('✓ All caches cleared');
+            }
+        }
+
+        // Test offline navigation
+        function testOfflineNavigation() {
+            log('Testing offline navigation...');
+            log('Redirecting to main app...');
+            setTimeout(() => {
+                window.location.href = '/chess/';
+            }, 500);
+        }
+
+        // Clear console
+        function clearConsole() {
+            document.getElementById('debug-console').textContent = 'Console cleared...';
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            log('Test page loaded');
+            updateNetworkStatus();
+            checkServiceWorker();
+        });
+    </script>
+</body>
+</html>

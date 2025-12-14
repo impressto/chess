@@ -1,5 +1,9 @@
-const CACHE_NAME = 'chess-game-v0.0.17';
-const urlsToCache = [
+const CACHE_NAME = 'chess-game-v0.0.20';
+const ASSETS_CACHE = 'chess-assets-v1';
+const IMAGE_CACHE = 'chess-images-v1';
+
+// Core app files - must be cached for offline functionality
+const CORE_ASSETS = [
   '/chess/',
   '/chess/index.php',
   '/chess/dist/index.html',
@@ -8,8 +12,7 @@ const urlsToCache = [
   '/chess/dist/assets/vendor.js',
   '/chess/dist/assets/index.css',
   '/chess/dist/screeen.jpg',
-  '/chess/dist/images/board.jpeg',
-  '/chess/dist/images/black-king.png',
+  '/chess/dist/pwa-icon.png',
   '/chess/dist/assets/board.jpg',
   '/chess/dist/assets/logo.png',
   '/chess/dist/assets/splash-image.jpg',
@@ -27,26 +30,38 @@ const urlsToCache = [
   '/chess/dist/assets/white-queen.png'
 ];
 
-// Install event - cache all assets
+// Asset patterns for dynamic caching
+const ASSET_PATTERNS = [
+  /\/chess\/dist\/assets\/.*\.js$/,
+  /\/chess\/dist\/assets\/.*\.css$/,
+];
+
+// Image patterns
+const IMAGE_PATTERNS = [
+  /\/chess\/dist\/assets\/.*\.(png|jpg|jpeg|svg|webp)$/,
+  /\/chess\/dist\/images\/.*\.(png|jpg|jpeg|svg|webp)$/,
+];
+
+// Install event - cache core assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v0.0.17 and caching assets...');
+  console.log('[SW] Installing service worker v0.0.20 and caching assets...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Opened cache:', CACHE_NAME);
-        console.log('[SW] Attempting to cache', urlsToCache.length, 'files');
+        console.log('[SW] Attempting to cache', CORE_ASSETS.length, 'files');
         
-        // Cache files one by one to see which ones fail
-        return Promise.all(
-          urlsToCache.map(url => {
-            return cache.add(url).then(() => {
-              console.log('[SW] ✓ Cached:', url);
-            }).catch(err => {
-              console.error('[SW] ✗ Failed to cache:', url, err);
-              // Don't fail the whole installation if one file fails
-            });
-          })
-        );
+        // Cache files individually to handle failures gracefully
+        const cachePromises = CORE_ASSETS.map(url => {
+          return cache.add(url).then(() => {
+            console.log('[SW] ✓ Cached:', url);
+          }).catch(err => {
+            console.warn('[SW] ✗ Failed to cache:', url, err);
+            // Don't fail the whole installation if one file fails
+          });
+        });
+        
+        return Promise.all(cachePromises);
       })
       .then(() => {
         console.log('[SW] Installation complete, activating...');
@@ -60,91 +75,152 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating service worker v0.0.20');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim()) // Take control immediately
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            // Delete old caches that don't match current version
+            if (cacheName !== CACHE_NAME && 
+                cacheName !== ASSETS_CACHE && 
+                cacheName !== IMAGE_CACHE) {
+              console.log('[SW] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log('[SW] Service worker activated, taking control');
+        return self.clients.claim(); // Take control immediately
+      })
   );
 });
 
-// Fetch event - Cache First strategy (perfect for offline PWA)
+// Helper function to determine cache name based on request
+function getCacheName(url) {
+  if (IMAGE_PATTERNS.some(pattern => pattern.test(url))) {
+    return IMAGE_CACHE;
+  }
+  if (ASSET_PATTERNS.some(pattern => pattern.test(url))) {
+    return ASSETS_CACHE;
+  }
+  return CACHE_NAME;
+}
+
+// Fetch event - offline-first strategy with network fallback
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin) && 
-      !event.request.url.startsWith('https://impressto.ca')) {
+  const { request } = event;
+  const url = request.url;
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Skip chrome extensions and other protocols
+  if (!url.startsWith('http')) {
+    return;
+  }
+
+  // Skip cross-origin requests (except our own domain)
+  if (!url.startsWith(self.location.origin)) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then((cachedResponse) => {
-        // Cache hit - return response
+        // Return cached response if found (offline-first)
         if (cachedResponse) {
-          console.log('[SW] Cache HIT:', event.request.url);
+          console.log('[SW] Cache HIT:', url);
           return cachedResponse;
         }
 
-        console.log('[SW] Cache MISS, fetching:', event.request.url);
+        console.log('[SW] Cache MISS, fetching:', url);
 
-        // Clone the request
-        const fetchRequest = event.request.clone();
+        // Not in cache, fetch from network
+        return fetch(request)
+          .then((response) => {
+            // Don't cache non-successful responses
+            if (!response || response.status !== 200 || response.type === 'error') {
+              return response;
+            }
 
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200) {
-            console.log('[SW] Invalid response for:', event.request.url);
-            return response;
-          }
+            // Clone the response
+            const responseToCache = response.clone();
+            const cacheName = getCacheName(url);
 
-          // Don't cache non-GET requests or chrome-extension requests
-          if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Cache everything (JS, CSS, images, fonts, etc.)
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-              console.log('[SW] Cached:', event.request.url);
-            });
-
-          return response;
-        }).catch((error) => {
-          console.error('[SW] Fetch failed for:', event.request.url, error);
-          
-          // If both cache and network fail, return cached index for navigation requests
-          if (event.request.mode === 'navigate') {
-            console.log('[SW] Returning cached index for navigation');
-            return caches.match('/chess/index.php').then((cachedIndex) => {
-              if (cachedIndex) {
-                return cachedIndex;
-              }
-              return caches.match('/chess/dist/index.html').then(cached => {
-                if (cached) return cached;
-                return caches.match('/chess/');
+            // Cache the fetched response
+            caches.open(cacheName)
+              .then((cache) => {
+                cache.put(request, responseToCache);
+                console.log('[SW] Cached to', cacheName + ':', url);
               });
+
+            return response;
+          })
+          .catch((error) => {
+            console.error('[SW] Fetch failed for:', url, error);
+            
+            // Return offline page or fallback for navigation requests
+            if (request.destination === 'document' || request.mode === 'navigate') {
+              console.log('[SW] Returning cached page for offline navigation');
+              // Try multiple cache keys in order of preference
+              return caches.match('/chess/index.php')
+                .then(cached => {
+                  if (cached) return cached;
+                  return caches.match('/chess/');
+                })
+                .then(cached => {
+                  if (cached) return cached;
+                  return caches.match('/chess/dist/index.html');
+                })
+                .then(cached => {
+                  if (cached) {
+                    return cached;
+                  }
+                  // Last resort: return a simple offline message
+                  return new Response(
+                    '<!DOCTYPE html><html><body><h1>Offline</h1><p>Please check your internet connection.</p></body></html>',
+                    {
+                      status: 503,
+                      statusText: 'Service Unavailable',
+                      headers: new Headers({
+                        'Content-Type': 'text/html'
+                      })
+                    }
+                  );
+                });
+            }
+            
+            // For other requests, just fail gracefully
+            return new Response('Offline - resource not available', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
             });
-          }
-          
-          // For other failed requests, return a basic offline response
-          return new Response('Offline - resource not cached', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({
-              'Content-Type': 'text/plain'
-            })
           });
-        });
       })
   );
+});
+
+// Listen for messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => caches.delete(cacheName))
+        );
+      })
+    );
+  }
 });

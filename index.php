@@ -121,19 +121,20 @@ $baseUrl = 'https://impressto.ca/chess';
                     .then(registration => {
                         console.log('✅ Service Worker registered with scope:', registration.scope);
                         
-                        // Check for updates every time
-                        registration.update();
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60000);
                         
-                        // Listen for new service worker
+                        // Handle service worker updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             console.log('🔄 New service worker found, installing...');
                             
                             newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'activated') {
-                                    console.log('✅ New service worker activated!');
-                                    // Optionally reload the page to use new service worker
-                                    // window.location.reload();
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('✅ New service worker installed, ready to activate');
+                                    // Optionally notify user and reload
                                 }
                             });
                         });
@@ -142,9 +143,29 @@ $baseUrl = 'https://impressto.ca/chess';
                         console.error('❌ Service Worker registration failed:', error);
                     });
             });
+            
+            // Handle service worker controller changes
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('🔄 Service worker controller changed');
+                // Optionally reload the page when a new service worker takes control
+                // window.location.reload();
+            });
         } else {
             console.warn('⚠️ Service Workers not supported in this browser');
         }
+        
+        // Install prompt for PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('💾 PWA install prompt available');
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully');
+            deferredPrompt = null;
+        });
     </script>
   </body>
 </html>
