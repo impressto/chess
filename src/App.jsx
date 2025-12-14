@@ -195,6 +195,14 @@ function App() {
 
     // If clicking on own piece, show allowed moves
     if (existingPiece && existingPiece.color === game.turn) {
+      // If clicking on the same piece again, deselect it
+      if (clickedSquare === position && clickedPieceName === existingPiece.name) {
+        setAllowedMoves([]);
+        setClickedSquare(null);
+        setClickedPieceName(null);
+        return;
+      }
+      
       const moves = game.getPieceAllowedMoves(existingPiece.name);
       console.log('Allowed moves for', existingPiece.name, ':', moves);
       setAllowedMoves(moves);
