@@ -6,6 +6,7 @@ import ChessBoard from './components/ChessBoard';
 import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
+import InstallPrompt from './components/InstallPrompt';
 import { useLanguage } from './contexts/LanguageContext.jsx';
 import { visualConfig } from './config/visualConfig';
 import logo from './assets/images/logo.png';
@@ -267,6 +268,8 @@ function App() {
       </button>
       
       {!showStartMenu && <img src={logo} alt="Juego de ajedrez Ogle" className="title-logo" />}
+      
+      <InstallPrompt />
       
       <StartMenu show={showStartMenu} onStartGame={handleStartGame} />
       <EndGameModal show={showEndGame} winner={winner} onNewGame={handleNewGame} />

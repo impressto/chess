@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chess-game-v0.0.21';
+const CACHE_NAME = 'chess-game-v0.0.23';
 const ASSETS_CACHE = 'chess-assets-v1';
 const IMAGE_CACHE = 'chess-images-v1';
 
@@ -44,7 +44,7 @@ const IMAGE_PATTERNS = [
 
 // Install event - cache core assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v0.0.21 and caching assets...');
+  console.log('[SW] Installing service worker v0.0.23 and caching assets...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -75,7 +75,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker v0.0.21');
+  console.log('[SW] Activating service worker v0.0.23');
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {

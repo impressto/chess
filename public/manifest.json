@@ -7,13 +7,19 @@
   "display": "standalone",
   "background_color": "#ebdfc7",
   "theme_color": "#ddcaa9",
-  "orientation": "portrait",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/chess/dist/pwa-icon.png",
+      "src": "/chess/pwa-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/chess/images/black-king.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["games", "entertainment"],
