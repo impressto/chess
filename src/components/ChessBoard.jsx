@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ChessBoard.css';
 import boardImage from '../assets/images/board.jpg';
+import { visualConfig, rgbaString } from '../config/visualConfig';
 
 // Import all piece images
 import blackBishop from '../assets/images/peices/black-bishop.png';
@@ -16,8 +17,17 @@ import whiteKnight from '../assets/images/peices/white-knight.png';
 import whitePawn from '../assets/images/peices/white-pawn.png';
 import whiteQueen from '../assets/images/peices/white-queen.png';
 
-const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn, gameOptions }) => {
+const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMove, capturedPieces, turn, gameOptions, aiMoveSquare }) => {
   console.log('ChessBoard rendering with', pieces.length, 'pieces');
+  console.log('AI Flash Config:', {
+    primaryColor: visualConfig.aiMoveFlash.primaryColor,
+    secondaryColor: visualConfig.aiMoveFlash.secondaryColor,
+    duration: visualConfig.aiMoveFlash.duration,
+    flashCount: visualConfig.aiMoveFlash.flashCount,
+    animation: `aiMoveFlash${Math.min(5, Math.max(1, visualConfig.aiMoveFlash.flashCount))}`,
+    primaryRGBA: rgbaString(visualConfig.aiMoveFlash.primaryColor, visualConfig.aiMoveFlash.intensity),
+    secondaryRGBA: rgbaString(visualConfig.aiMoveFlash.secondaryColor, visualConfig.aiMoveFlash.intensity)
+  });
   
   const [captureSquare, setCaptureSquare] = useState(null);
   const [animatingPiece, setAnimatingPiece] = useState(null);
@@ -143,6 +153,7 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
         const isClicked = clickedSquare === position;
         const isLastMove = lastMove.includes(position);
         const isCaptureSquare = captureSquare === position;
+        const isAiMove = aiMoveSquare === position;
         
         // Determine square color
         const isLightSquare = isEvenRow ? col % 2 === 0 : col % 2 !== 0;
@@ -153,6 +164,7 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
         if (isAllowed) squareClass += ' allowed';
         if (isClicked) squareClass += ' clicked-square';
         if (isCaptureSquare) squareClass += ' capture-blink';
+        if (isAiMove) squareClass += ' ai-move-flash';
         if (isLastMove) {
           // If it's white's turn now, black just moved (use light blue)
           // If it's black's turn now, white just moved (use yellow)
@@ -189,7 +201,16 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
   };
 
   return (
-    <div className="board-wrapper">
+    <div 
+      className="board-wrapper"
+      style={{
+        '--ai-flash-primary-color': rgbaString(visualConfig.aiMoveFlash.primaryColor, visualConfig.aiMoveFlash.intensity),
+        '--ai-flash-secondary-color': rgbaString(visualConfig.aiMoveFlash.secondaryColor, visualConfig.aiMoveFlash.intensity),
+        '--ai-flash-primary-glow': rgbaString(visualConfig.aiMoveFlash.primaryColor, visualConfig.aiMoveFlash.glowIntensity),
+        '--ai-flash-secondary-glow': rgbaString(visualConfig.aiMoveFlash.secondaryColor, visualConfig.aiMoveFlash.glowIntensity),
+        '--ai-flash-duration': `${visualConfig.aiMoveFlash.duration}ms`
+      }}
+    >
       {/* Captured pieces by black (white pieces taken) - top left */}
       <div className="captured-pieces captured-top-left" id="capture-area-black">
         {capturedPieces.black.map((piece, index) => (
@@ -226,7 +247,17 @@ const ChessBoard = ({ pieces, onSquareClick, allowedMoves, clickedSquare, lastMo
         )}
         
         {/* Actual board with squares */}
-        <div id="board">
+        <div 
+          id="board"
+          style={{
+            '--ai-flash-primary-color': rgbaString(visualConfig.aiMoveFlash.primaryColor, visualConfig.aiMoveFlash.intensity),
+            '--ai-flash-secondary-color': rgbaString(visualConfig.aiMoveFlash.secondaryColor, visualConfig.aiMoveFlash.intensity),
+            '--ai-flash-primary-glow': rgbaString(visualConfig.aiMoveFlash.primaryColor, visualConfig.aiMoveFlash.glowIntensity),
+            '--ai-flash-secondary-glow': rgbaString(visualConfig.aiMoveFlash.secondaryColor, visualConfig.aiMoveFlash.glowIntensity),
+            '--ai-flash-duration': `${visualConfig.aiMoveFlash.duration}ms`,
+            '--ai-flash-animation': `aiMoveFlash${Math.min(5, Math.max(1, visualConfig.aiMoveFlash.flashCount))}`
+          }}
+        >
           {renderBoard()}
         </div>
       </div>

@@ -7,6 +7,7 @@ import StartMenu from './components/StartMenu';
 import EndGameModal from './components/EndGameModal';
 import GameInfo from './components/GameInfo';
 import { useLanguage } from './contexts/LanguageContext.jsx';
+import { visualConfig } from './config/visualConfig';
 import logo from './assets/images/logo.png';
 import splashImage from './assets/images/splash-image.jpg';
 import './App.css';
@@ -26,6 +27,7 @@ function App() {
   const [gameOptions, setGameOptions] = useState({ opponent: 'human', playerColor: 'white', aiEngine: 'stockfish', difficulty: 'intermediate' });
   const [updateCounter, setUpdateCounter] = useState(0);
   const [capturedPieces, setCapturedPieces] = useState({ white: [], black: [] });
+  const [aiMoveSquare, setAiMoveSquare] = useState(null);
   
   const gameRef = useRef(null);
   const aiPlayerRef = useRef(null);
@@ -82,6 +84,9 @@ function App() {
             console.log('AI play result:', aiPlay);
             if (aiPlay.move) {
               game.movePiece(aiPlay.move.pieceName, aiPlay.move.position);
+              // Highlight the AI's move with a flashing effect
+              setAiMoveSquare(aiPlay.move.position);
+              setTimeout(() => setAiMoveSquare(null), 2000); // Clear after 2 seconds
             }
             setGameState(game.turn + '_turn');
           });
@@ -157,6 +162,7 @@ function App() {
     setWinner('');
     setGameState('white_turn');
     setCapturedPieces({ white: [], black: [] });
+    setAiMoveSquare(null);
     
     // If player chose black and AI is white, AI makes first move
     if (options.opponent === 'ai' && options.playerColor === 'black') {
@@ -166,6 +172,9 @@ function App() {
           aiPlayerRef.current.play(game.pieces, (aiPlay) => {
             if (aiPlay.move) {
               game.movePiece(aiPlay.move.pieceName, aiPlay.move.position);
+              // Highlight the AI's move with a flashing effect
+              setAiMoveSquare(aiPlay.move.position);
+              setTimeout(() => setAiMoveSquare(null), visualConfig.aiMoveFlash.duration);
             }
             setGameState(game.turn + '_turn');
           });
@@ -282,6 +291,7 @@ function App() {
               capturedPieces={capturedPieces}
               turn={turn}
               gameOptions={gameOptions}
+              aiMoveSquare={aiMoveSquare}
             />
           </div>
         </>
