@@ -1,5 +1,7 @@
 # ♟️ Barbarian-Themed Chess: An Example of an Offline Progressive Web App Built with React
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 <img width="400" height="477" alt="chess-screen" src="https://github.com/user-attachments/assets/125df68f-b3b2-4a2e-b06d-248f3c77e33a" />
 
 
@@ -266,7 +268,11 @@ npm install
 
 ## 📝 License
 
-This project is open source and available for modification and redistribution.
+This project is licensed under the GNU General Public License v3.0.
+See the `LICENSE` file for the full terms. In short, you are free to
+copy, modify, and redistribute this project under the terms of the
+GPLv3. If you redistribute the project (or a modified version), you
+must also make the source available under the same license.
 
 ## 🎮 Tech Stack
 
