@@ -1,4 +1,6 @@
-# ♟️ Chess Game - Progressive Web App
+# ♟️ Barbarian-Themed Chess: An Example of an Offline Progressive Web App Built with React
+
+
 
 A feature-rich chess game built with React and Vite, featuring Stockfish AI integration, multiple difficulty levels, and a Progressive Web App (PWA) architecture for offline play.
 
