@@ -137,24 +137,6 @@ aiMoveFlash: {
    - Controls the halo/shadow effect around the square
    - Higher values create more dramatic lighting effects
 
-## Pre-made Color Schemes
-
-Check out `src/config/colorSchemes.js` for ready-to-use color schemes:
-- **arcade** - Classic cyan/magenta neon
-- **matrix** - Green hacker theme
-- **fireIce** - Orange and turquoise contrast
-- **sunset** - Pink and gold vibes
-- **electric** - Electric blue theme
-- **rainbow** - Colorful party mode
-- **purple** - Purple haze
-- **subtle** - Professional and understated
-- **christmas** - Red and green
-- **halloween** - Orange and purple
-- **ocean** - Turquoise waves
-- **lava** - Hot orange and pink
-
-To use a scheme, just copy its values into `visualConfig.js`.
-
 ## Finding Hex Colors
 
 You can get hex color codes from:

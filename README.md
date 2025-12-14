@@ -84,24 +84,6 @@ aiMoveFlash: {
 }
 ```
 
-#### Pre-made Color Schemes
-
-Check out `src/config/colorSchemes.js` for ready-to-use themes:
-
-- **arcade**: Classic neon cyan/magenta
-- **matrix**: Hacker-style green
-- **fireIce**: Orange and turquoise contrast
-- **sunset**: Pink and gold vibes
-- **electric**: Electric blue theme
-- **rainbow**: Vibrant multicolor
-- **purple**: Purple haze
-- **subtle**: Professional low-key
-- **christmas**: Red and green
-- **halloween**: Orange and purple
-- **ocean**: Turquoise waves
-
-To use a preset scheme, copy its configuration into `visualConfig.js`.
-
 #### Custom Colors
 
 Use any hex color code from design tools like:
@@ -194,8 +176,7 @@ chess/
 │   │   ├── StartMenu.jsx
 │   │   └── EndGameModal.jsx
 │   ├── config/          # Configuration files
-│   │   ├── visualConfig.js      # Visual settings
-│   │   └── colorSchemes.js      # Color presets
+│   │   └── visualConfig.js      # Visual settings
 │   ├── contexts/        # React contexts
 │   ├── game/            # Game logic
 │   │   ├── Game.js      # Chess rules
