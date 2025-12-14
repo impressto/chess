@@ -1,3 +1,4 @@
+![Uploading chess-screen.png…]()
 # ♟️ Barbarian-Themed Chess: An Example of an Offline Progressive Web App Built with React
 
 
