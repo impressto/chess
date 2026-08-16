@@ -143,20 +143,28 @@ class StockfishAI {
       console.log('✓ UCI initialization successful');
       // Set skill level and related options before marking ready
       this.stockfish.postMessage(`setoption name Skill Level value ${this.skillLevel}`);
-      
-      // For lower skill levels, also limit the depth and enable MultiPV for more randomness
+
+      // This Stockfish.wasm build enforces UCI_Elo min 1350 / max 2850 - requesting
+      // anything below 1350 gets silently clamped *up* to 1350 by the engine, which
+      // was making "beginner" and "casual" collapse into the same (not weak) strength.
+      // Only use Elo-limiting when the target is within the engine's supported range;
+      // weaker-than-1350 play is instead achieved via shallow search in play().
+      const MIN_SUPPORTED_ELO = 1350;
+      let targetElo = null;
       if (this.skillLevel <= 5) {
-        // Beginner and Casual levels - very limited
-        this.stockfish.postMessage(`setoption name UCI_LimitStrength value true`);
-        this.stockfish.postMessage(`setoption name UCI_Elo value ${800 + this.skillLevel * 100}`);
-        console.log(`Setting UCI_Elo to ${800 + this.skillLevel * 100} for weaker play`);
+        targetElo = 800 + this.skillLevel * 100; // beginner/casual - usually below floor
       } else if (this.skillLevel <= 10) {
-        // Intermediate level
-        this.stockfish.postMessage(`setoption name UCI_LimitStrength value true`);
-        this.stockfish.postMessage(`setoption name UCI_Elo value ${1300 + this.skillLevel * 50}`);
-        console.log(`Setting UCI_Elo to ${1300 + this.skillLevel * 50}`);
+        targetElo = 1300 + this.skillLevel * 50; // intermediate
       }
-      
+
+      if (targetElo !== null && targetElo >= MIN_SUPPORTED_ELO) {
+        this.stockfish.postMessage(`setoption name UCI_LimitStrength value true`);
+        this.stockfish.postMessage(`setoption name UCI_Elo value ${targetElo}`);
+        console.log(`Setting UCI_Elo to ${targetElo}`);
+      } else if (targetElo !== null) {
+        console.log(`Skipping UCI_Elo ${targetElo} - below engine's supported floor of ${MIN_SUPPORTED_ELO}; relying on Skill Level + shallow search instead`);
+      }
+
       this.stockfish.postMessage('isready');
     } else if (message === 'readyok') {
       this.isReady = true;
@@ -333,12 +341,14 @@ class StockfishAI {
     this.stockfish.postMessage(`position fen ${fen}`);
     
     // Search strategy based on skill level
-    // For lower levels, use movetime (quick thinking) instead of depth for weaker play
+    // For lower levels, cap both depth AND movetime - movetime alone isn't enough
+    // to weaken play since this engine can still reach double-digit depth in <500ms.
     if (this.skillLevel <= 2) {
-      // Beginner and casual - very limited thinking time
+      // Beginner and casual - very limited thinking time and lookahead
+      const searchDepth = this.skillLevel === 1 ? 1 : 2; // depth 1 for beginner, 2 for casual
       const moveTime = this.skillLevel === 1 ? 200 : 500; // 200ms for beginner, 500ms for casual
-      console.log(`Searching with movetime ${moveTime}ms for skill level ${this.skillLevel}`);
-      this.stockfish.postMessage(`go movetime ${moveTime}`);
+      console.log(`Searching with depth ${searchDepth}, movetime ${moveTime}ms for skill level ${this.skillLevel}`);
+      this.stockfish.postMessage(`go depth ${searchDepth} movetime ${moveTime}`);
     } else {
       // Higher levels use depth-based search
       let searchDepth;
